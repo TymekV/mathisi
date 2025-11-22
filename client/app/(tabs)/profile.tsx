@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { Text } from 'react-native-paper';
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -15,7 +15,7 @@ export default function HomeScreen() {
         />
       }>
 
-      <Text>Index</Text>
+      <Text>Profile</Text>
 
     </ParallaxScrollView>
   );

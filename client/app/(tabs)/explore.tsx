@@ -2,8 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Text } from 'react-native-paper';
 
-export default function TabTwoScreen() {
+export default function AddNewScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -16,6 +17,8 @@ export default function TabTwoScreen() {
         />
       }>
       
+      <Text>Explore</Text>
+
     </ParallaxScrollView>
   );
 }

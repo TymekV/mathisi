@@ -1,29 +1,28 @@
 import React from 'react';
+import { BottomNavigation } from 'react-native-paper';
+import HomeScreen from '.';
+import AddNewScreen from './explore';
+import ProfileScreen from './profile';
 
-import { BottomNavigation, Text } from 'react-native-paper';
+const IndexRoute = () => <HomeScreen/>
 
-const MusicRoute = () => <Text>Music</Text>;
+const AlbumsRoute = () => <AddNewScreen/>;
 
-const AlbumsRoute = () => <Text>Albums</Text>;
+const ProfileRoute = () => <ProfileScreen/>;
 
-const RecentsRoute = () => <Text>Recents</Text>;
-
-const NotificationsRoute = () => <Text>Notifications</Text>;
 
 export default function TabLayout() {
 const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'music', title: 'Favorites', focusedIcon: 'heart', unfocusedIcon: 'heart-outline'},
-    { key: 'albums', title: 'Albums', focusedIcon: 'album' },
-    { key: 'recents', title: 'Recents', focusedIcon: 'history' },
-    { key: 'notifications', title: 'Notifications', focusedIcon: 'bell', unfocusedIcon: 'bell-outline' },
+    { key: 'feed', title: 'Feed', focusedIcon: 'home', unfocusedicon: 'home'},
+    { key: 'new', title: 'New', focusedIcon: 'camera' },
+    { key: 'profile', title: 'Profile', focusedIcon: 'information', unfocusedIcon: 'information-outline' },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    music: MusicRoute,
-    albums: AlbumsRoute,
-    recents: RecentsRoute,
-    notifications: NotificationsRoute,
+    feed: IndexRoute,
+    new: AlbumsRoute,
+    profile : ProfileRoute,
   });
 
   return (
