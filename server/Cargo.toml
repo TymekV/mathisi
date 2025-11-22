@@ -54,3 +54,4 @@ rust_decimal = "1.39.0"
 thiserror = "2.0.17"
 miette = "7.6.0"
 tonic = { version = "0.14.2", features = ["tls-aws-lc"] }
+argon2 = "0.5.3"

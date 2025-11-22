@@ -4,6 +4,7 @@ mod init;
 mod routes;
 mod settings;
 mod state;
+mod util;
 
 use std::sync::Arc;
 
