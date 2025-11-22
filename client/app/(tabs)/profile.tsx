@@ -1,41 +1,50 @@
-import { Image } from 'expo-image';
-import { StyleSheet } from 'react-native';
-
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { Text } from 'react-native-paper';
+import LogInCard from '@/components/log-in';
+import SignInCard from '@/components/sign-in';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
 
 export default function ProfileScreen() {
+  const [isLoged, setIsLoged] = useState<boolean>(false);
+  const [isLogging,setIsLogging] = useState<boolean>(true);
+ 
+  const handleLoginPress = () => {
+    setIsLogging(true); // Switch to login view
+  };
+
+const handleRegisterPress = () => {
+    setIsLogging(false); // Switch to login view
+  };
+
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-
-      <Text>Profile</Text>
-
-    </ParallaxScrollView>
+    <PaperProvider>
+      <View style={styles.centerContainer}>
+        {
+          isLogging ?
+          <LogInCard onRegisterPress={handleRegisterPress}  />
+          :
+          <SignInCard onLoginPress={handleLoginPress} />
+        }
+      </View>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  bottom:{
+    flex: 1,
+    justifyContent: 'space-between',
     flexDirection: 'row',
+    paddingTop: 5
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    padding: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  card: {
+    width: '90%',             // Optional: limit width to 90% of screen
   },
 });
