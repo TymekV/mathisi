@@ -1,35 +1,78 @@
-import React from 'react';
+import TabBar from '@/components/TabBar';
+import { AntDesign, Entypo, FontAwesome } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import React, { useState } from 'react';
 import { BottomNavigation } from 'react-native-paper';
 import HomeScreen from '.';
-import AddNewScreen from './explore';
+import AddNewScreen from './new';
 import ProfileScreen from './profile';
 
-const IndexRoute = () => <HomeScreen/>
+const IndexRoute = () => <HomeScreen />
 
-const AlbumsRoute = () => <AddNewScreen/>;
+const AlbumsRoute = () => <AddNewScreen />;
 
-const ProfileRoute = () => <ProfileScreen/>;
+const ProfileRoute = () => <ProfileScreen />;
 
 
 export default function TabLayout() {
-const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'feed', title: 'Feed', focusedIcon: 'home', unfocusedicon: 'home'},
-    { key: 'new', title: 'New', focusedIcon: 'camera' },
-    { key: 'profile', title: 'Profile', focusedIcon: 'information', unfocusedIcon: 'information-outline' },
-  ]);
 
+  const [index, setIndex] = useState(0);
   const renderScene = BottomNavigation.SceneMap({
     feed: IndexRoute,
     new: AlbumsRoute,
-    profile : ProfileRoute,
+    profile: ProfileRoute,
   });
 
+  const routes = [
+    { key: 'home', title: 'Home', icon: 'home' },
+    { key: 'settings', title: 'Settings', icon: 'cog' },
+  ];
   return (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-    />
+    <Tabs
+      tabBar={(props) => <TabBar {...props} />}
+    >
+      <Tabs.Screen
+        name='index'
+        options={
+          {
+            title: "Home",
+            tabBarIcon: ({ color, focused }) => (
+              focused ?
+                <Entypo name="home" size={24} color={color} />
+                :
+                <AntDesign name="home" size={24} color={color} />
+            ),
+          }
+        }
+      />
+      <Tabs.Screen
+        name='new'
+        options={
+          {
+            title: "New",
+            tabBarIcon: ({ color, focused }) => (
+              focused ?
+                <FontAwesome name="camera" size={24} color={color} />
+                :
+                <AntDesign name="camera" size={24} color={color} />
+            ),
+          }
+        }
+      />
+      <Tabs.Screen
+        name='profile'
+        options={
+          {
+            title: "Profile",
+            tabBarIcon: ({ color, focused }) => (
+              focused ?
+                <FontAwesome name="user" size={24} color={color} />
+                :
+                <FontAwesome name="user-o" size={24} color={color} />
+            ),
+          }
+        }
+      />
+    </Tabs>
   );
 }
