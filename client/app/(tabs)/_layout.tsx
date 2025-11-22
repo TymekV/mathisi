@@ -1,32 +1,10 @@
 import TabBar from '@/components/TabBar';
 import { AntDesign, Entypo, FontAwesome } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import React, { useState } from 'react';
-import { BottomNavigation } from 'react-native-paper';
-import HomeScreen from '.';
-import AddNewScreen from './new';
-import ProfileScreen from './profile';
+import React from 'react';
 
-const IndexRoute = () => <HomeScreen />
+export default function Layout() {
 
-const AlbumsRoute = () => <AddNewScreen />;
-
-const ProfileRoute = () => <ProfileScreen />;
-
-
-export default function TabLayout() {
-
-  const [index, setIndex] = useState(0);
-  const renderScene = BottomNavigation.SceneMap({
-    feed: IndexRoute,
-    new: AlbumsRoute,
-    profile: ProfileRoute,
-  });
-
-  const routes = [
-    { key: 'home', title: 'Home', icon: 'home' },
-    { key: 'settings', title: 'Settings', icon: 'cog' },
-  ];
   return (
     <Tabs
       tabBar={(props) => <TabBar {...props} />}

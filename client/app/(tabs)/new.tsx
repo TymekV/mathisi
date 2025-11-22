@@ -1,37 +1,52 @@
-import { StyleSheet } from 'react-native';
-
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Text } from 'react-native-paper';
-
+import { OCR } from "@dccarmo/react-native-ocr";
+import * as ImagePicker from "expo-image-picker";
+import React from "react";
+import { StyleSheet, View } from 'react-native';
+import { FAB, Text } from 'react-native-paper';
 export default function AddNewScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      
-      <Text>Explore</Text>
 
-    </ParallaxScrollView>
+  const [result, setResult] = React.useState("No Result");
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      OCR.recognizeText(result.assets[0].uri).then(setResult);
+      console.log(result);
+    }
+  };
+
+
+  return (
+
+    <View
+      style={styles.centerContainer}
+    >
+        
+
+        <FAB
+          icon="plus"
+          variant="primary"
+          size="large"
+          onPress={pickImage}
+        />
+        <Text style={{color: "white"}}>
+        {
+          "Debug text:" + result
+        } 
+        </Text>
+      </View>
+
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
