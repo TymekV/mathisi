@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 
 import ArticleCard from '@/components/article-card';
 import React from 'react';
@@ -10,10 +10,10 @@ const sample = [
     desc: "Functional programming emphasizes pure functions and immutability, leading to more predictable codebases. This paradigm is rapidly gaining traction in modern web and application development. Its inherent support for concurrent operations makes it highly valuable.",
     author: "Alice Smith",
     upvotes: 45,
-    time_ago : "2 mintues",
+    time_ago: "2 mintues",
     upvote: 1,
     id: 1,
-    saved: true 
+    saved: true
   },
   {
     title: "Deep Sea Hydrothermal Vents",
@@ -21,7 +21,7 @@ const sample = [
     author: "Dr. Finn Ocean",
     upvotes: 123,
     upvote: -1,
-    time_ago : "15 mintues",
+    time_ago: "15 mintues",
     id: 2,
     saved: false
   },
@@ -31,9 +31,9 @@ const sample = [
     author: "Historian Bob",
     upvotes: 98,
     upvote: 0,
-    time_ago : "month ago",
+    time_ago: "month ago",
     id: 3,
-    saved: true 
+    saved: true
   },
   {
     title: "Coffee Brewing: The Science of Extraction",
@@ -41,7 +41,7 @@ const sample = [
     author: "Caffeine King",
     upvotes: 205,
     upvote: -1,
-    time_ago : "year ago",
+    time_ago: "year ago",
     id: 4,
     saved: true
   },
@@ -49,23 +49,26 @@ const sample = [
 
 
 export default function HomeScreen() {
- 
+
   const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
     <ScrollView>
 
-    <Searchbar
-      placeholder="Search"
-      onChangeText={setSearchQuery}
-      value={searchQuery}
-    />
+      <Searchbar
+        placeholder="Search"
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+      />
 
-      {sample.map((item,index) => 
-      <View style={styles.cardContainer} key={index}>
-        <ArticleCard article={item}/>
-      </View>
-      )}
+      <FlatList
+        data={sample}
+        renderItem={({ item }) =>
+          <View style={styles.cardContainer} >
+            <ArticleCard article={item} />
+          </View>
+        }
+      />
       {/* lazy loading waits for you ^^  */}
 
     </ScrollView>
@@ -73,7 +76,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  cardContainer:{
+  cardContainer: {
     paddingTop: 7,
     paddingBottom: 7,
   }

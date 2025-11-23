@@ -1,19 +1,32 @@
-import React from "react";
+import { apiBaseUrl } from "@/constants/apiBaseUrl";
+import { paths } from "@/types/api";
+import * as SecureStore from 'expo-secure-store';
+import createClient from "openapi-fetch"; // Corrected import
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
-import { Button, Card, HelperText, TextInput } from "react-native-paper";
+import { Button, Card, HelperText, Surface, Text, TextInput, useTheme } from "react-native-paper";
 
 type Props = {
     onLoginPress: () => void;
+    onLogin?: () => void;
 };
 
 type Inputs = {
     email: string;
+    username: string;
     password: string;
     repeat_password: string;
 };
 
-export default function SignInCard({ onLoginPress }: Props) {
+const $api = createClient<paths>({
+    baseUrl: apiBaseUrl,
+});
+
+export default function SignInCard({ onLoginPress,onLogin }: Props) {
+
+    const theme = useTheme();
+    const [registerMessage, setRegisterMessage] = useState<string>("");
 
     const {
         control,
@@ -23,16 +36,62 @@ export default function SignInCard({ onLoginPress }: Props) {
     } = useForm<Inputs>({
         defaultValues: {
             email: "",
+            username: "",
             password: "",
-            repeat_password: "",
         },
     });
 
-    const onSubmit = (data: Inputs) => {
-        console.log("Form submitted:", data);
+    type ApiError = {
+        error: string;
+        // Add other potential error fields if they exist, like status, message, etc.
     };
 
+    type ApiRegisterSuccesResponse = {
+        succes: boolean
+    }
+
     const passwordValue = watch("password");
+
+    // Define the submission function
+    const onSubmit = async (data_input: Inputs) => {
+        const { data, error, response } = await $api.POST("/api/register", { body: { email: data_input.email, username: data_input.username, password: data_input.password } });
+
+
+        if (data) {
+            console.log(data)
+            if ('success' in data) {
+
+                await login(data_input)
+            }
+        }
+
+        if (error) {
+            const err = error as ApiError
+            console.log(err.error)
+            if (err.error === `Query Error: error returned from database: duplicate key value violates unique constraint "users_username_key"`) {
+                setRegisterMessage("This username is already taken!");
+            } else if (err.error === `Query Error: error returned from database: duplicate key value violates unique constraint "users_email_key"`) {
+                setRegisterMessage("This email was already used!");
+            } else {
+                setRegisterMessage("An unexpected registration error occurred.");
+            }
+        }
+    };
+
+    const login = async (data_input: Inputs) => {
+        const { data, error, response } = await $api.POST("/api/login", { body: { email: data_input.email, username: data_input.username, password: data_input.password } });
+        if (data) {
+
+            console.log("succes in logging");
+            await SecureStore.setItemAsync('token', data?.token);
+
+            if (await SecureStore.getItemAsync('token')) {
+                console.log("succes in logging");
+                onLogin?.();
+            }
+        }
+    }
+
 
     return (
         <Card style={styles.card}>
@@ -61,6 +120,33 @@ export default function SignInCard({ onLoginPress }: Props) {
                             />
                             <HelperText type="error" visible={!!errors.email}>
                                 {errors.email?.message}
+                            </HelperText>
+                        </>
+                    )}
+                />
+
+                <Controller
+                    control={control}
+                    name="username"
+                    rules={{
+                        required: "Password is required",
+                        minLength: {
+                            value: 3,
+                            message: "Username must be at least 3 characters",
+                        },
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <>
+                            <TextInput
+                                label="Username"
+                                value={value}
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                secureTextEntry
+                                error={!!errors.username}
+                            />
+                            <HelperText type="error" visible={!!errors.username}>
+                                {errors.username?.message}
                             </HelperText>
                         </>
                     )}
@@ -117,7 +203,16 @@ export default function SignInCard({ onLoginPress }: Props) {
                         </>
                     )}
                 />
+                {
+                    registerMessage.trim() !== "" ?
+                        <Surface style={{ backgroundColor: theme.colors.errorContainer, padding: 15 }}>
+                            <Text>{registerMessage}</Text>
+                        </Surface>
+                        :
+                        <View>
 
+                        </View>
+                }
             </Card.Content>
 
             <Card.Actions>

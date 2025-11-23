@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Card, Surface, Text } from "react-native-paper";
-
 type Props = {
     article: article
 };
@@ -37,6 +36,10 @@ export default function ArticleCard({ article: art }: Props) {
             // Invalidate and refetch
             queryClient.invalidateQueries({ queryKey: ['save'] })
         },
+    })
+
+    // todo refetch
+    const mutation = useMutation({
     })
 
     function UpVote() {

@@ -5,7 +5,7 @@ import React from 'react';
 
 export default function Layout() {
     return (
-        <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
+        <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
             <Tabs.Screen
                 name="(home)"
                 options={{
