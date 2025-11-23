@@ -38,12 +38,6 @@ pub struct NoteCreateRequest {
     pub content: String,
 }
 
-#[derive(Deserialize, ToSchema, Validate)]
-pub struct NoteRequest {
-    //#[validate(value(min=0))]
-    pub id : i32,
-}
-
 impl From<note::Model> for NoteResponse {
     fn from(note: note::Model) -> Self {
         NoteResponse {

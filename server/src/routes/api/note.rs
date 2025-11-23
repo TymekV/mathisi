@@ -3,12 +3,10 @@
 use axum::{ Extension, Json, extract::Path};
 use chrono::{DateTime, Utc};
 use color_eyre::eyre::eyre;
-use http::StatusCode;
 use sea_orm::{ EntityTrait};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
-use validator::Validate;
 
 use crate::{entity::note, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, state::AppState};
 
@@ -24,11 +22,6 @@ pub struct NoteResponse {
 
     pub title: String,
     pub content: String,
-}
-#[derive(Deserialize, ToSchema, Validate)]
-pub struct NoteRequest {
-    //#[validate(value(min=0))]
-    pub id : i32,
 }
 impl From<note::Model> for NoteResponse {
     fn from(note: note::Model) -> Self {
