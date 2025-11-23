@@ -1,6 +1,8 @@
 import '../global.css';
 
-import 'react-native-reanimated';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import Query from '@/lib/providers/query';
+import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import {
     DarkTheme as NavDarkTheme,
     DefaultTheme as NavLightTheme,
@@ -8,15 +10,13 @@ import {
 } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import Query from '@/lib/providers/query';
 import {
     adaptNavigationTheme,
     MD3DarkTheme,
     MD3LightTheme,
     PaperProvider,
 } from 'react-native-paper';
+import 'react-native-reanimated';
 
 export const unstable_settings = {
     anchor: '(tabs)',
@@ -50,6 +50,7 @@ export default function RootLayout() {
                 <PaperProvider theme={paperTheme}>
                     <Stack>
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="article" options={{ headerShown: false }} />
                         <Stack.Screen
                             name="modal"
                             options={{ presentation: 'modal', title: 'Modal' }}

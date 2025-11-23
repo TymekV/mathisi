@@ -1,10 +1,12 @@
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
+import { router } from 'expo-router';
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Card, Surface, Text } from "react-native-paper";
 
 type Props = {
+    id: number,
     title: string,
 
     ///
@@ -13,12 +15,12 @@ type Props = {
     desc: string,
     author: string,
     upvotes: number,
-    time_ago: string 
+    time_ago: string
 
 };
 
 
-export default function ArticleCard({ title, desc, author,upvotes, time_ago }: Props) {
+export default function ArticleCard({ id,title, desc, author, upvotes, time_ago }: Props) {
 
     return (
         <Card>
@@ -47,7 +49,18 @@ export default function ArticleCard({ title, desc, author,upvotes, time_ago }: P
                     </Text>
                 }
                 subtitle={
-                    <Text style={styles.title}>{title}</Text>
+                    <Text
+                        onPress={() =>
+                            router.navigate({
+                                pathname: '/article/[id]',
+                                params: { id: id }
+                            })
+                        }
+
+                        style={styles.title}
+                    >
+                        {title}
+                    </Text>
                 }
                 subtitleNumberOfLines={3}
             />
@@ -55,24 +68,24 @@ export default function ArticleCard({ title, desc, author,upvotes, time_ago }: P
                 <Text>{desc}</Text>
             </Card.Content>
             <Card.Actions style={styles.actions}>
-                
+
                 <View style={styles.flex} >
                     <Pressable>
-                        <Entypo name="arrow-bold-up" size={24} color="black" />
+                        <Text><Entypo name="arrow-bold-up" size={24} /></Text>
                     </Pressable>
                     <Text>
                         {upvotes}
                     </Text>
                     <Pressable>
-                        <Entypo name="arrow-bold-down" size={24} color="black" />
+                        <Text><Entypo name="arrow-bold-down" size={24} /></Text>
                     </Pressable>
                 </View>
-                
+
                 <Pressable>
-                    <FontAwesome name="bookmark" size={24} color="black" />
+                    <Text><FontAwesome name="bookmark" size={24} /></Text>
                 </Pressable>
                 <Pressable>
-                    <FontAwesome5 name="share" size={24} color="black" />
+                    <Text><FontAwesome5 name="share" size={24} /></Text>
                 </Pressable>
 
             </Card.Actions>
@@ -98,10 +111,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
     },
-    details:{
+    details: {
         paddingLeft: 10
     },
-    actions:{
+    actions: {
         paddingTop: 7,
         paddingBottom: 7,
         gap: 15

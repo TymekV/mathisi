@@ -9,6 +9,8 @@ export default function Layout() {
     <Tabs
       tabBar={(props) => <TabBar {...props} />}
     >
+
+
       <Tabs.Screen
         name='index'
         options={
@@ -37,6 +39,7 @@ export default function Layout() {
           }
         }
       />
+
       <Tabs.Screen
         name='profile'
         options={
@@ -51,6 +54,13 @@ export default function Layout() {
           }
         }
       />
+      <Tabs.Screen
+        name="article/[id]"
+        options={{
+          href: null,
+        }}
+      />
+
     </Tabs>
   );
 }

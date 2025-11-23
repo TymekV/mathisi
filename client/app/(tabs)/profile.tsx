@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    width: '90%',             // Optional: limit width to 90% of screen
+    width: '90%',
   },
 });
