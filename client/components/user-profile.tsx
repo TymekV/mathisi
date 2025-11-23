@@ -2,10 +2,19 @@ import { apiBaseUrl } from "@/constants/apiBaseUrl";
 import { paths } from "@/types/api";
 import * as SecureStore from 'expo-secure-store';
 import createClient from "openapi-fetch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
+
+interface user{
+    email : string,
+    username : string,
+    id : string,
+}
 
 export default function UserProfile() {
+
+    const [user, setUser] = useState<user | undefined>(undefined);
 
     const $api = createClient<paths>({
         baseUrl: apiBaseUrl,
@@ -24,14 +33,17 @@ export default function UserProfile() {
                 "Authorization": token,
             }
         });
-        console.log(data)
-        console.log(response)
-        console.log(error)
+    
     }
 
     return (
         <View>
-
+            {
+                user ?
+                <ActivityIndicator animating={true}  />
+                :
+                <Text>Hello {}</Text>
+            }
         </View>
     )
 }
