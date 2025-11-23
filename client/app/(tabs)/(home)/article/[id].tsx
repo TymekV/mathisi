@@ -3,11 +3,11 @@ import { ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 
 export default function Users() {
-  const { id } = useLocalSearchParams();
+    const { id } = useLocalSearchParams();
 
-  return (
-    <ScrollView>
-      <Text >Article id: {id}</Text>
-    </ScrollView>
-  );
+    return (
+        <ScrollView>
+            <Text>Article id: {id}</Text>
+        </ScrollView>
+    );
 }
