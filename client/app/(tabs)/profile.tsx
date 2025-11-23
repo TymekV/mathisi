@@ -1,5 +1,6 @@
 import LogInCard from '@/components/log-in';
 import SignInCard from '@/components/sign-in';
+import UserProfile from '@/components/user-profile';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -39,7 +40,8 @@ export default function ProfileScreen() {
       {
         isLoged ?
           <View>
-            <Button onPress={logOut}>Log Out</Button>
+            <UserProfile></UserProfile>
+            <Button mode='elevated' onPress={logOut}>Log Out</Button>
           </View>
           :
           <View style={styles.centerContainer}>
