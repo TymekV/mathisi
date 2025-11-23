@@ -1,3 +1,8 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+node_modules
+android
+ios
+.expo
+.kotlin
