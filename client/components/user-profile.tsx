@@ -6,44 +6,56 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Text } from "react-native-paper";
 
-interface user{
-    email : string,
-    username : string,
-    id : string,
+interface User {
+    email: string;
+    username: string;
+    id: number;
 }
 
 export default function UserProfile() {
 
-    const [user, setUser] = useState<user | undefined>(undefined);
+    const [user, setUser] = useState<User | null>(null);
 
     const $api = createClient<paths>({
         baseUrl: apiBaseUrl,
     });
 
     useEffect(() => {
-        get()
-    })
+        getUser();
+    }, []);
 
+    async function getUser() {
+        const token = await SecureStore.getItemAsync("token");
 
-
-    async function get() {
-        const token = await SecureStore.getItemAsync('token');
-        const { data, error, response } = await $api.GET("/api/user", {
+        const { data, error } = await $api.GET("/api/user", {
             headers: {
-                "Authorization": token,
-            }
+                Authorization: token
+            },
         });
-    
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        if (data) {
+            setUser({
+                username: data.username,
+                email: data.email,
+                id: data.id,
+            });
+        }
     }
 
     return (
         <View>
-            {
-                user ?
-                <ActivityIndicator animating={true}  />
-                :
-                <Text>Hello {}</Text>
-            }
+            {!user ? (
+                <ActivityIndicator animating={true} />
+            ) : (
+                <>
+                        <Text>Hello {user.username}</Text>
+                </>
+            )}
         </View>
-    )
+    );
 }
