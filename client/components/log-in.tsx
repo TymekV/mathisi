@@ -1,18 +1,29 @@
-import React from "react";
+import { apiBaseUrl } from "@/constants/apiBaseUrl";
+import { paths } from "@/types/api";
+import * as SecureStore from 'expo-secure-store';
+import createClient from "openapi-fetch";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
-import { Button, Card, HelperText, TextInput } from "react-native-paper";
+import { Button, Card, HelperText, Surface, Text, TextInput, useTheme } from "react-native-paper";
 
 type Props = {
     onRegisterPress: () => void;
 };
 
 type Inputs = {
-    email: string;
+    username: string;
     password: string;
 };
 
+
+const $api = createClient<paths>({
+    baseUrl: apiBaseUrl,
+});
+
 export default function LogInCard({ onRegisterPress }: Props) {
+    const theme = useTheme();
+    const [registerMessage, setRegisterMessage] = useState<string>("");
 
     const {
         control,
@@ -20,41 +31,51 @@ export default function LogInCard({ onRegisterPress }: Props) {
         formState: { errors },
     } = useForm<Inputs>({
         defaultValues: {
-            email: "",
+            username: "",
             password: "",
         },
     });
 
-    const onSubmit = (data: Inputs) => {
-        console.log("Form submitted:", data);
-    };
+    const login = async (data_input: Inputs) => {
+        const { data, error, response } = await $api.POST("/api/login", { body: { username: data_input.username, password: data_input.password } });
+        if (data) {
+
+            await SecureStore.setItemAsync('token', data?.token);
+            if (await SecureStore.getItemAsync('token')) {
+                console.log("succes in logging");
+            }
+        }
+        if (error) {
+            setRegisterMessage("Invalid username or password");
+        }
+    }
 
     return (
         <Card style={styles.card}>
             <Card.Title title="Log In" />
             <Card.Content>
-                
+
                 <Controller
                     control={control}
-                    name="email"
+                    name="username"
                     rules={{
-                        required: "Email is required",
-                        pattern: {
-                            value: /\S+@\S+\.\S+/,
-                            message: "Email address is invalid",
-                        },
+                        required: "Username is required",
+                        minLength: {
+                            value: 3,
+                            message: "Username must be at least 3 characters"
+                        }
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <>
                             <TextInput
-                                label="Email"
+                                label="Username"
                                 value={value}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 autoCapitalize="none"
                             />
-                            <HelperText type="error" visible={!!errors.email}>
-                                {errors.email?.message}
+                            <HelperText type="error" visible={!!errors.username}>
+                                {errors.username?.message}
                             </HelperText>
                         </>
                     )}
@@ -86,13 +107,22 @@ export default function LogInCard({ onRegisterPress }: Props) {
                         </>
                     )}
                 />
+                {
+                    registerMessage.trim() !== "" ?
+                        <Surface style={{ backgroundColor: theme.colors.errorContainer, padding: 15 }}>
+                            <Text>{registerMessage}</Text>
+                        </Surface>
+                        :
+                        <View>
 
+                        </View>
+                }
             </Card.Content>
 
             <Card.Actions>
                 <View style={styles.bottom}>
                     <Button onPress={onRegisterPress}>Register</Button>
-                    <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+                    <Button mode="contained" onPress={handleSubmit(login)}>
                         Submit
                     </Button>
                 </View>

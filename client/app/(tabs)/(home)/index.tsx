@@ -60,7 +60,6 @@ export default function HomeScreen() {
       onChangeText={setSearchQuery}
       value={searchQuery}
     />
-
       {sample.map((item,index) => 
       <View style={styles.cardContainer} key={index}>
         <ArticleCard article={item}/>
