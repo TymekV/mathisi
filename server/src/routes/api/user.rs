@@ -1,4 +1,5 @@
 use axum::{Extension, Json};
+use chrono::NaiveDateTime;
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -16,6 +17,7 @@ pub struct UserResponse {
     pub username: String,
 
     pub email: String,
+    pub created_at: NaiveDateTime,
 }
 
 impl From<user::Model> for UserResponse {
@@ -24,6 +26,7 @@ impl From<user::Model> for UserResponse {
             id: user.id,
             username: user.username,
             email: user.email,
+            created_at: user.created_at,
         }
     }
 }

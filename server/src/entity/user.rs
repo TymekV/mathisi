@@ -14,5 +14,9 @@ pub struct Model {
     pub email: String,
 
     pub password: String,
+
+    // wprost dodana kolumna
+    #[sea_orm(column_type = "DateTime")]
+    pub created_at: DateTime,
 }
 impl ActiveModelBehavior for ActiveModel {}
