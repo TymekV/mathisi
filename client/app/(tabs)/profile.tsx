@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
 
-export default async function ProfileScreen() {
+export default function ProfileScreen() {
   const [isLoged, setIsLoged] = useState<boolean>(false);
   const [isLogging, setIsLogging] = useState<boolean>(true);
 
