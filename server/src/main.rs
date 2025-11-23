@@ -1,6 +1,7 @@
 mod entity;
 mod errors;
 mod init;
+mod middlewares;
 mod routes;
 mod settings;
 mod state;
