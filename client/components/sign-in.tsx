@@ -9,6 +9,7 @@ import { Button, Card, HelperText, Surface, Text, TextInput, useTheme } from "re
 
 type Props = {
     onLoginPress: () => void;
+    onLogin?: () => void;
 };
 
 type Inputs = {
@@ -22,7 +23,7 @@ const $api = createClient<paths>({
     baseUrl: apiBaseUrl,
 });
 
-export default function SignInCard({ onLoginPress }: Props) {
+export default function SignInCard({ onLoginPress,onLogin }: Props) {
 
     const theme = useTheme();
     const [registerMessage, setRegisterMessage] = useState<string>("");
@@ -83,6 +84,11 @@ export default function SignInCard({ onLoginPress }: Props) {
 
             console.log("succes in logging");
             await SecureStore.setItemAsync('token', data?.token);
+
+            if (await SecureStore.getItemAsync('token')) {
+                console.log("succes in logging");
+                onLogin?.();
+            }
         }
     }
 
