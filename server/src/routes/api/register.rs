@@ -1,11 +1,11 @@
 use argon2::Argon2;
-use chrono::{NaiveDateTime, Utc};
+use chrono::{Utc};
 use password_hash::{PasswordHasher, SaltString, rand_core::OsRng};
 
 use axum::{Extension, Json};
 use axum_valid::Valid;
 use color_eyre::eyre::eyre;
-use sea_orm::{ActiveModelTrait, ActiveValue::{NotSet, Set}, prelude::TimeDateTime};
+use sea_orm::{ActiveModelTrait, ActiveValue::{Set}};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};

@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
 use sea_orm::entity::prelude::*;
+use serde::Serialize;
 
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
+#[derive(serde::Serialize)]
 #[sea_orm(table_name = "notes")]
 pub struct Model {
     #[sea_orm(primary_key)]
