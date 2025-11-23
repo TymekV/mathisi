@@ -1,26 +1,56 @@
+import { article } from '@/types/article';
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Card, Surface, Text } from "react-native-paper";
 
 type Props = {
-    id: number,
-    title: string,
-
-    ///
-    /// PIERWSZE DWA-TRZY ZDANIA NOTATKI, PROSZE NIE ZAPOMNI SPARSOWAC DO KROPEK
-    ///
-    desc: string,
-    author: string,
-    upvotes: number,
-    time_ago: string
-
+    article: article
 };
 
 
-export default function ArticleCard({ id,title, desc, author, upvotes, time_ago }: Props) {
+
+export default function ArticleCard({ article: art }: Props) {
+
+    const [vote, setVote] = useState<number>(0);
+    const [isSaved, setIsSaved] = useState<boolean>(false);
+
+    const queryClient = useQueryClient();
+
+    const queryLike = useQuery({ queryKey: ['like'] })
+    const querySave = useQuery({ queryKey: ['save'] })
+
+    const mutationLike = useMutation({
+        //mutationFn: postTodo,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: ['like'] })
+        },
+    })
+
+    const mutationSave = useMutation({
+        //mutationFn: postTodo,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: ['save'] })
+        },
+    })
+
+    function UpVote() {
+        alert("upvoted")
+    }
+    function DownVoted() {
+        alert("downvoted")
+    }
+    function Share() {
+        alert("Promt to share with link");
+    }
+    function Save(){
+        alert("Saved!");
+    }
 
     return (
         <Card>
@@ -43,8 +73,8 @@ export default function ArticleCard({ id,title, desc, author, upvotes, time_ago 
                             </Surface>
                         </View>
                         <View style={styles.details}>
-                            <Text>{author}</Text>
-                            <Text>{time_ago}</Text>
+                            <Text>{art.author}</Text>
+                            <Text>{art.time_ago}</Text>
                         </View>
                     </Text>
                 }
@@ -53,38 +83,69 @@ export default function ArticleCard({ id,title, desc, author, upvotes, time_ago 
                         onPress={() =>
                             router.navigate({
                                 pathname: '/article/[id]',
-                                params: { id: id }
+                                params: { id: art.id }
                             })
                         }
 
                         style={styles.title}
                     >
-                        {title}
+                        {art.title}
                     </Text>
                 }
                 subtitleNumberOfLines={3}
             />
             <Card.Content style={styles.cardContent}>
-                <Text>{desc}</Text>
+                <Text>{art.desc}</Text>
             </Card.Content>
             <Card.Actions style={styles.actions}>
 
                 <View style={styles.flex} >
-                    <Pressable>
-                        <Text><Entypo name="arrow-bold-up" size={24} /></Text>
+                    <Pressable onPress={UpVote}>
+                        <Text
+                            style={
+                                art.upvote === 1 ?
+                                    {
+                                        color: 'green'
+                                    } :
+                                    {
+
+                                    }
+                            }
+                        ><Entypo name="arrow-bold-up" size={24} /></Text>
                     </Pressable>
                     <Text>
-                        {upvotes}
+                        {art.upvotes}
                     </Text>
-                    <Pressable>
-                        <Text><Entypo name="arrow-bold-down" size={24} /></Text>
+                    <Pressable onPress={DownVoted}>
+                        <Text
+                            style={
+                                art.upvote === -1 ?
+                                    {
+                                        color: 'red'
+                                    } :
+                                    {
+
+                                    }
+                            }
+                        ><Entypo name="arrow-bold-down" size={24} /></Text>
                     </Pressable>
                 </View>
 
-                <Pressable>
-                    <Text><FontAwesome name="bookmark" size={24} /></Text>
+                <Pressable onPress={Save}>
+                    <Text
+                        style={
+                            art.saved === true ?
+                                {
+                                    color: 'cyan'
+                                }
+                                :
+                                {
+
+                                }
+                        }
+                    ><FontAwesome name="bookmark" size={24} /></Text>
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={Share}>
                     <Text><FontAwesome5 name="share" size={24} /></Text>
                 </Pressable>
 
