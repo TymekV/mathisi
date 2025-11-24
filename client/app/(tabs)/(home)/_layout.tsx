@@ -8,7 +8,7 @@ export default function FeedLayout() {
     return (
         <Stack>
             <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
-            <Stack.Screen name="article/[id]" options={{ headerShown: true, headerTitle: "" }} />
+            <Stack.Screen name="article/[id]" options={{ headerShown: false, headerTitle: "" }} />
         </Stack>
     );
 }
