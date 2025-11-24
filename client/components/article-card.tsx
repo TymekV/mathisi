@@ -1,14 +1,15 @@
+import type { components } from '@/types/api';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import {
+    IconArrowBigDownLinesFilled,
+    IconArrowBigUpLineFilled,
+    IconBookmark,
+    IconBookmarkFilled
+} from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import React, { memo, useMemo, useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { Card, Divider, IconButton, Surface, Text } from 'react-native-paper';
-import {
-    IconArrowBigDownLinesFilled,
-    IconArrowBigUpLinesFilled,
-    IconBookmark,
-    IconShare3,
-} from '@tabler/icons-react-native';
-import type { components } from '@/types/api';
 
 type Note = components['schemas']['NoteResponse'];
 
@@ -66,7 +67,7 @@ function ArticleCardComponent({ article }: Props) {
             <Card.Actions style={styles.actions}>
                 <IconButton
                     icon={({ color, size }) => (
-                        <IconArrowBigUpLinesFilled
+                        <IconArrowBigUpLineFilled
                             color={vote === 1 ? '#2f9e44' : color}
                             size={size}
                         />
@@ -84,12 +85,16 @@ function ArticleCardComponent({ article }: Props) {
                 />
                 <IconButton
                     icon={({ color, size }) => (
-                        <IconBookmark color={bookmarked ? '#f59f00' : color} size={size} />
+                        bookmarked
+                            ?
+                            <IconBookmarkFilled color={color} size={size} />
+                            :
+                            <IconBookmark color={color} size={size} />
                     )}
                     onPress={() => setBookmarked((prev) => !prev)}
                 />
                 <IconButton
-                    icon={({ color, size }) => <IconShare3 color={color} size={size} />}
+                    icon={({ color, size }) => <FontAwesome5 name="share" size={24} color={color} />}
                     onPress={handleShare}
                 />
             </Card.Actions>
