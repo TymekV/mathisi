@@ -23,7 +23,6 @@ export default function HomeScreen() {
     getArticles()
   }, []);
 
-
   async function getArticles() {
     const token = await SecureStore.getItemAsync("token");
 
