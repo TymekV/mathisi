@@ -23,6 +23,9 @@ importers:
       '@react-navigation/native':
         specifier: ^7.1.8
         version: 7.1.21(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      '@tabler/icons-react-native':
+        specifier: ^3.28.0
+        version: 3.35.0(react@19.1.0)
       '@tanstack/react-query':
         specifier: ^5.90.10
         version: 5.90.10(react@19.1.0)
@@ -1329,6 +1332,14 @@ packages:
 
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
+
+  '@tabler/icons-react-native@3.35.0':
+    resolution: {integrity: sha512-flRVBIPUvZY7sdKxJoZHfZ11NvGZhPUj/2RNKSjvUvGZuF+W5WYUyHZMAyhIwYPs0Ix+EMUtR3BFmXNVozcl6Q==}
+    peerDependencies:
+      react: '>= 16.5.1'
+
+  '@tabler/icons@3.35.0':
+    resolution: {integrity: sha512-yYXe+gJ56xlZFiXwV9zVoe3FWCGuZ/D7/G4ZIlDtGxSx5CGQK110wrnT29gUj52kEZoxqF7oURTk97GQxELOFQ==}
 
   '@tanstack/query-core@5.90.10':
     resolution: {integrity: sha512-EhZVFu9rl7GfRNuJLJ3Y7wtbTnENsvzp+YpcAV7kCYiXni1v8qZh++lpw4ch4rrwC0u/EZRnBHIehzCGzwXDSQ==}
@@ -6463,6 +6474,13 @@ snapshots:
   '@sinonjs/fake-timers@10.3.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
+
+  '@tabler/icons-react-native@3.35.0(react@19.1.0)':
+    dependencies:
+      '@tabler/icons': 3.35.0
+      react: 19.1.0
+
+  '@tabler/icons@3.35.0': {}
 
   '@tanstack/query-core@5.90.10': {}
 

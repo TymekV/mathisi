@@ -1,72 +1,78 @@
-import { apiBaseUrl } from "@/constants/apiBaseUrl";
-import { paths } from "@/types/api";
-import * as SecureStore from 'expo-secure-store';
-import createClient from "openapi-fetch";
-import { useEffect, useState } from "react";
-import { View } from "react-native";
-import { ActivityIndicator, Text } from "react-native-paper";
+import { apiClient } from '@/lib/providers/api';
+import type { components } from '@/types/api';
+import { memo, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Avatar, Surface, Text } from 'react-native-paper';
 
-interface User {
-    email: string;
-    username: string;
-    id: number;
-    created_at: string
-}
+type User = components['schemas']['UserResponse'];
 
-export default function UserProfile() {
+function UserProfileComponent() {
+    const userQuery = apiClient.useQuery('get', '/api/user');
 
-    const [user, setUser] = useState<User | null>(null);
+    const joinedLabel = useMemo(() => {
+        if (!userQuery.data?.created_at) {
+            return '';
+        }
 
-    const $api = createClient<paths>({
-        baseUrl: apiBaseUrl,
-    });
-
-    useEffect(() => {
-        getUser();
-    }, []);
-
-    async function getUser() {
-        const token = await SecureStore.getItemAsync("token");
-
-        const { data, error } = await $api.GET("/api/user", {
-            headers: {
-                Authorization: token
-            },
+        return new Date(userQuery.data.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
         });
+    }, [userQuery.data?.created_at]);
 
-        if (error) {
-            console.error(error);
-            return;
-        }
-        
-        if (data) {
-            console.log(data);
-            const date = new Date(data.created_at);
-            setUser({
-                username: data.username,
-                email: data.email,
-                id: data.id,
-                created_at: date.toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                })
-            });
-        }
+    if (userQuery.isPending) {
+        return (
+            <View style={styles.loader}>
+                <ActivityIndicator animating />
+            </View>
+        );
+    }
+
+    const user: User | undefined = userQuery.data;
+
+    if (!user) {
+        return (
+            <View style={styles.loader}>
+                <Text variant="bodyMedium">We couldn't load your profile.</Text>
+            </View>
+        );
     }
 
     return (
-        <View>
-            {!user ? (
-                <ActivityIndicator animating={true} />
-            ) : (
-                <>
-                    <Text>Hello {user.username}</Text>
-                    <Text>Create at {user.created_at}</Text>
-                </>
-            )}
-        </View>
+        <Surface style={styles.container} elevation={1}>
+            <Avatar.Text label={user.username.slice(0, 2).toUpperCase()} size={56} />
+            <View style={styles.details}>
+                <Text variant="titleMedium">{user.username}</Text>
+                <Text variant="bodyMedium" style={styles.subtle}>
+                    {user.email}
+                </Text>
+                <Text variant="bodySmall" style={styles.subtle}>
+                    Member since {joinedLabel}
+                </Text>
+            </View>
+        </Surface>
     );
 }
+
+export const UserProfile = memo(UserProfileComponent);
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 16,
+        gap: 16,
+    },
+    details: {
+        flex: 1,
+    },
+    subtle: {
+        opacity: 0.7,
+    },
+    loader: {
+        padding: 24,
+        alignItems: 'center',
+    },
+});

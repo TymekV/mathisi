@@ -1,50 +1,22 @@
-import LogInCard from "@/components/log-in";
-import SignInCard from "@/components/sign-in";
-import { Redirect } from "expo-router";
-import * as SecureStore from 'expo-secure-store';
-import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { useAuth } from '@/lib/providers/auth';
+import { Redirect } from 'expo-router';
+import { ActivityIndicator } from 'react-native-paper';
+import { View } from 'react-native';
 
 export default function IndexScreen() {
+    const { isAuthenticated, isLoading } = useAuth();
 
-    const [isLoged, setIsLoged] = useState<boolean>(false);
-    const [isLogging, setIsLogging] = useState<boolean>(true);
-
-
-    const handleLoginPress = () => {
-        setIsLogging(true);
-    };
-
-    const handleRegisterPress = () => {
-        setIsLogging(false);
-    };
-
-    useEffect(() => {
-        checkLogin()
-    })
-    async function checkLogin() {
-        const res = await SecureStore.getItemAsync('token')
-        if (res) {
-            console.log("i am logged");
-            setIsLoged(true)
-        }
-
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator animating />
+            </View>
+        );
     }
 
-    return (
-        <ScrollView
-        >
-            {
-                isLoged
-                    ?
+    if (isAuthenticated) {
+        return <Redirect href="/(tabs)/(home)" />;
+    }
 
-                    <Redirect href={"/(tabs)/(home)"}></Redirect>
-                    :
-                    isLogging ?
-                        <LogInCard onRegisterPress={handleRegisterPress} onLogin={checkLogin} />
-                        :
-                        <SignInCard onLoginPress={handleLoginPress} onLogin={checkLogin} />
-            }
-        </ScrollView>
-    )
+    return <Redirect href="/(auth)/login" />;
 }

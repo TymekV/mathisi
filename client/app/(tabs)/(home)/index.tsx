@@ -1,82 +1,101 @@
 import ArticleCard from '@/components/article-card';
-import { apiBaseUrl } from '@/constants/apiBaseUrl';
-import { paths } from '@/types/api';
-import { article } from '@/types/article';
-import * as SecureStore from 'expo-secure-store';
-import createClient from 'openapi-fetch';
-import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { Searchbar } from 'react-native-paper';
+import { apiClient } from '@/lib/providers/api';
+import type { components } from '@/types/api';
+import { useCallback, useMemo, useState } from 'react';
+import { FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Searchbar, Text } from 'react-native-paper';
 
-
+type Note = components['schemas']['NoteResponse'];
 
 export default function HomeScreen() {
-
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [notes, setNotes] = useState<article[]>([])
-
-  const $api = createClient<paths>({
-    baseUrl: apiBaseUrl,
-  });
-
-  useEffect(() => {
-    getArticles()
-  }, []);
-
-  async function getArticles() {
-    const token = await SecureStore.getItemAsync("token");
-
-    const { data, error } = await $api.GET("/api/notes", {
-      headers: {
-        Authorization: token
-      },
+    const [searchQuery, setSearchQuery] = useState('');
+    const notesQuery = apiClient.useQuery('get', '/api/notes', undefined, {
+        staleTime: 1000 * 60,
     });
 
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    if (data) {
-      setNotes(data.notes);
-    }
-  }
-  
-  const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = useCallback(() => {
-    getArticles()
-  }, []);
-
-  return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-      }
-    >
-
-      <Searchbar
-        placeholder="Search"
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-      />
-
-      <FlatList
-        data={notes}
-        renderItem={({ item }) =>
-          <View style={styles.cardContainer} >
-            <ArticleCard article={item} />
-          </View>
+    const filteredNotes = useMemo(() => {
+        const items = notesQuery.data?.notes ?? [];
+        if (!searchQuery.trim()) {
+            return items;
         }
-      />
-      {/* lazy loading waits for you ^^  */}
 
-    </ScrollView>
-  );
+        return items.filter(
+            (note) =>
+                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                note.content.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [notesQuery.data?.notes, searchQuery]);
+
+    const renderItem = useCallback<ListRenderItem<Note>>(
+        ({ item }) => (
+            <View style={styles.cardContainer}>
+                <ArticleCard article={item} />
+            </View>
+        ),
+        []
+    );
+
+    const listHeader = (
+        <Searchbar
+            placeholder="Search notes"
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={styles.searchbar}
+        />
+    );
+
+    if (notesQuery.isPending) {
+        return (
+            <View style={styles.loaderContainer}>
+                <ActivityIndicator animating />
+            </View>
+        );
+    }
+
+    return (
+        <FlatList<Note>
+            data={filteredNotes}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            ListHeaderComponent={listHeader}
+            contentContainerStyle={styles.listContent}
+            refreshing={notesQuery.isRefetching}
+            onRefresh={notesQuery.refetch}
+            ListEmptyComponent={() => (
+                <View style={styles.emptyState}>
+                    <Text variant="titleMedium">No notes yet</Text>
+                    <Text variant="bodyMedium" style={styles.emptyStateDescription}>
+                        Start by creating your first note.
+                    </Text>
+                </View>
+            )}
+        />
+    );
 }
 
 const styles = StyleSheet.create({
-  cardContainer: {
-    paddingTop: 7,
-    paddingBottom: 7,
-  }
+    listContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 24,
+    },
+    searchbar: {
+        marginVertical: 16,
+    },
+    cardContainer: {
+        paddingVertical: 8,
+    },
+    loaderContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyState: {
+        alignItems: 'center',
+        paddingVertical: 48,
+    },
+    emptyStateDescription: {
+        marginTop: 4,
+        textAlign: 'center',
+        opacity: 0.7,
+    },
 });

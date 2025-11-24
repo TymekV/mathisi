@@ -1,9 +1,8 @@
-import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import '../global.css';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider } from '@/lib/providers/auth';
 import Query from '@/lib/providers/query';
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import {
@@ -42,43 +41,30 @@ export default function RootLayout() {
         materialLight: MD3LightTheme,
     });
 
-    const [isLoged, setIsLoged] = useState<boolean>(false);
-
-    useEffect(() => {
-        checkLogin();
-    }, []);
-
-    async function checkLogin() {
-        const token = await SecureStore.getItemAsync('token');
-        setIsLoged(!!token);
-        if (!isLoged) {
-            router.replace('/');
-        }
-    }
-
-
     return (
-        <Query>
-            <ThemeProvider
-                value={
-                    colorScheme === 'light'
-                        ? { ...LightTheme, fonts: NavLightTheme.fonts }
-                        : { ...DarkTheme, fonts: NavDarkTheme.fonts }
-                }
-            >
-                <PaperProvider theme={paperTheme}>
-                    <Stack initialRouteName='index'>
-
-                        <Stack.Screen name="index" options={{ headerShown: false }} />
-                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                        <Stack.Screen
-                            name="modal"
-                            options={{ presentation: 'modal', title: 'Modal' }}
-                        />
-                    </Stack>
-                    <StatusBar style="auto" />
-                </PaperProvider>
-            </ThemeProvider>
-        </Query>
+        <AuthProvider>
+            <Query>
+                <ThemeProvider
+                    value={
+                        colorScheme === 'light'
+                            ? { ...LightTheme, fonts: NavLightTheme.fonts }
+                            : { ...DarkTheme, fonts: NavDarkTheme.fonts }
+                    }
+                >
+                    <PaperProvider theme={paperTheme}>
+                        <Stack initialRouteName="index">
+                            <Stack.Screen name="index" options={{ headerShown: false }} />
+                            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                            <Stack.Screen
+                                name="modal"
+                                options={{ presentation: 'modal', title: 'Modal' }}
+                            />
+                        </Stack>
+                        <StatusBar style="auto" />
+                    </PaperProvider>
+                </ThemeProvider>
+            </Query>
+        </AuthProvider>
     );
 }

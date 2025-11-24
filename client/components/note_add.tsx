@@ -1,21 +1,18 @@
-import { apiBaseUrl } from "@/constants/apiBaseUrl";
-import { paths } from "@/types/api";
-import * as SecureStore from 'expo-secure-store';
-import createClient from "openapi-fetch";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { apiClient } from '@/lib/providers/api';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { FAB, HelperText, SegmentedButtons, TextInput } from "react-native-paper";
+import { FAB, HelperText, SegmentedButtons, TextInput } from 'react-native-paper';
 
 type Inputs = {
-    title: string,
-    content: string
-}
+    title: string;
+    content: string;
+};
 interface Props {
-    remove: () => void,
-    text: string, // External state for content
-    updateText: React.Dispatch<React.SetStateAction<string>>
+    remove: () => void;
+    text: string; // External state for content
+    updateText: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function NoteAddScreen({ remove, text, updateText }: Props) {
@@ -28,53 +25,32 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
         formState: { errors },
     } = useForm<Inputs>({
         defaultValues: {
-            title: "",
+            title: '',
             content: text,
         },
     });
 
-
-
-
-    const $api = createClient<paths>({
-        baseUrl: apiBaseUrl,
-    });
+    const createNoteMutation = apiClient.useMutation('post', '/api/notes');
 
     const add = async (data_input: Inputs) => {
-        const res = await SecureStore.getItemAsync('token')
-        const { data, error } = await $api.POST("/api/notes", {
-            body: data_input,
-            headers: {
-                Authorization: res || ""
-            }
-        })
-        if (data) {
-            alert("success")
-            remove(); // Close after success
+        try {
+            await createNoteMutation.mutateAsync({ body: data_input });
+            remove();
+        } catch (error) {
+            console.error('Failed to create note', error);
         }
-        if (error) {
-            alert("something went wrong")
-        }
-    }
+    };
 
     return (
         <View style={styles.container}>
             {/* Header Actions */}
             <View style={styles.centerContainer}>
-                <FAB
-                    icon="close"
-                    size="small"
-                    onPress={remove}
-                />
-                <FAB
-                    icon="check"
-                    size="small"
-                    onPress={handleSubmit(add)}
-                />
+                <FAB icon="close" size="small" onPress={remove} />
+                <FAB icon="check" size="small" onPress={handleSubmit(add)} />
                 <Controller
                     control={control}
                     name="title"
-                    rules={{ required: "Title is required" }}
+                    rules={{ required: 'Title is required' }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <View style={styles.fill1}>
                             <TextInput
@@ -108,7 +84,7 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
                 <Controller
                     control={control}
                     name="content"
-                    rules={{ required: "Content is required" }}
+                    rules={{ required: 'Content is required' }}
                     render={({ field: { onChange, value } }) => (
                         <>
                             <TextInput
@@ -139,7 +115,6 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
                             {text}
                         </Markdown>
                     </ScrollView>
-
                 </View>
             )}
         </View>
@@ -179,8 +154,8 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         backgroundColor: '#252525',
-        color: 'white'
-    }
+        color: 'white',
+    },
 });
 
 // Styles for the 'react-native-markdown-display' renderer

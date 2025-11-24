@@ -1,9 +1,25 @@
 import TabBar from '@/components/TabBar';
-import { AntDesign, Entypo, FontAwesome } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { useAuth } from '@/lib/providers/auth';
+import { IconCamera, IconHome, IconUser } from '@tabler/icons-react-native';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
 export default function Layout() {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            <View style={styles.loader}>
+                <ActivityIndicator animating />
+            </View>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return <Redirect href="/(auth)/login" />;
+    }
 
     return (
         <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
@@ -11,38 +27,37 @@ export default function Layout() {
                 name="(home)"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ color, focused }) =>
-                        focused ? (
-                            <Entypo name="home" size={24} color={color} />
-                        ) : (
-                            <AntDesign name="home" size={24} color={color} />
-                        ),
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconHome color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="new"
                 options={{
                     title: 'New',
-                    tabBarIcon: ({ color, focused }) =>
-                        focused ? (
-                            <FontAwesome name="camera" size={24} color={color} />
-                        ) : (
-                            <AntDesign name="camera" size={24} color={color} />
-                        ),
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconCamera color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color, focused }) =>
-                        focused ? (
-                            <FontAwesome name="user" size={24} color={color} />
-                        ) : (
-                            <FontAwesome name="user-o" size={24} color={color} />
-                        ),
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconUser color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
                 }}
             />
         </Tabs>
     );
 }
+
+const styles = StyleSheet.create({
+    loader: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});
