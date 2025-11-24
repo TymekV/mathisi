@@ -5,7 +5,8 @@ import { useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import createClient from 'openapi-fetch';
 import { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { Text } from 'react-native-paper';
 
 export default function Users() {
@@ -42,12 +43,15 @@ export default function Users() {
 
     return (
         <ScrollView>
-            <Text>Article id: {id}</Text>
 
             {note ? (
                 <>
-                    <Text>Title: {note.title}</Text>
-                    <Text>{note.content}</Text>
+                    <Text style={markdownStylesDisplay.heading1}>{note.title}</Text>
+                    <ScrollView style={styles.previewContainer}>
+                        <Markdown style={markdownStylesDisplay}>
+                            {note.content}
+                        </Markdown>
+                    </ScrollView>
                 </>
             ) : (
                 <Text>Loading...</Text>
@@ -55,3 +59,50 @@ export default function Users() {
         </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#1e1e1e',
+    },
+    centerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 10,
+    },
+    fill1: {
+        flex: 1,
+    },
+    editorContainer: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        backgroundColor: '#1e1e1e',
+    },
+    markdownInput: {
+        flex: 1,
+        color: 'white',
+        fontSize: 16,
+        padding: 10,
+        textAlignVertical: 'top',
+    },
+    previewContainer: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#252525',
+        color: 'white'
+    }
+});
+// Styles for the 'react-native-markdown-display' renderer
+const markdownStylesDisplay = StyleSheet.create({
+    body: { color: 'white' },
+    heading1: { color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+    heading2: { color: 'white', fontSize: 20, fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
+    list_item: { color: 'white', flexDirection: 'row', alignItems: 'flex-start' },
+    bullet_list_icon: { color: 'white', fontSize: 20 },
+    code_inline: { backgroundColor: '#333', color: '#ff79c6' },
+    code_block: { backgroundColor: '#333', padding: 10, borderRadius: 4 },
+});
