@@ -56,3 +56,4 @@ miette = "7.6.0"
 tonic = { version = "0.14.2", features = ["tls-aws-lc"] }
 argon2 = "0.5.3"
 password-hash = "0.5.0"
+async-openai = "0.30.1"

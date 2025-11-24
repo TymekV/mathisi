@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 
+use async_openai::config::OpenAIConfig;
 use axum::{Extension, Json, Router, response::IntoResponse, routing::get};
 use color_eyre::Result;
 use http::StatusCode;
@@ -65,4 +66,12 @@ pub async fn init_database(settings: &Settings) -> Result<sea_orm::DatabaseConne
         .await?;
 
     Ok(db)
+}
+
+pub fn init_ai(settings: &Settings) -> async_openai::Client<OpenAIConfig> {
+    async_openai::Client::with_config(
+        OpenAIConfig::new()
+            .with_api_key(&settings.ai.api_key)
+            .with_api_base(&settings.ai.base_url),
+    )
 }

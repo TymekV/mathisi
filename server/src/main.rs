@@ -15,7 +15,7 @@ use tracing::{info, level_filters::LevelFilter};
 use utoipa::OpenApi;
 
 use crate::{
-    init::{init_axum, init_database, init_listener, init_tracing},
+    init::{init_ai, init_axum, init_database, init_listener, init_tracing},
     settings::Settings,
     state::AppState,
 };
@@ -45,9 +45,12 @@ async fn main() -> Result<()> {
 
     let db = init_database(&settings).await?;
 
+    let ai = init_ai(&settings);
+
     let app_state = AppState {
         settings: settings.clone(),
         db,
+        ai,
     };
 
     let app = init_axum(app_state).await?;
