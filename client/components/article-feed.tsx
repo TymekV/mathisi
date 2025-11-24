@@ -21,7 +21,7 @@ export default function ArticleFeed({ feed,isPending,isRefetching,refetch,search
 
     const filteredNotes = useMemo(() => {
         const items = feed ?? [];
-        if (!searchQuery.trim()) {
+        if (searchQuery.trim() === "") {
             return items;
         }
 
@@ -66,7 +66,10 @@ export default function ArticleFeed({ feed,isPending,isRefetching,refetch,search
             ListHeaderComponent={listHeader}
             contentContainerStyle={styles.listContent}
             refreshing={isRefetching}
-            onRefresh={refetch}
+            onRefresh={() => {
+                refetch
+                setSearchQuery("")
+            }}
             ListEmptyComponent={() => (
                 <View style={styles.emptyState}>
                     <Text variant="titleMedium">No notes yet</Text>
