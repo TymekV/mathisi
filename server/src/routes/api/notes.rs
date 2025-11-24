@@ -3,16 +3,17 @@
 use axum::{ Extension, Json};
 use axum_valid::Valid;
 use chrono::{DateTime, Utc};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set};
+use color_eyre::eyre::eyre;
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use validator::Validate;
 
-use crate::{entity::{note, user}, errors::{AxumResult}, middlewares::UnauthorizedError, state::AppState};
+use crate::{entity::{note, user}, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, state::AppState};
 
 pub fn routes() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(create_note))
+    OpenApiRouter::new().routes(routes!(create_note)).routes(routes!(get_notes))
 }
 
 #[derive(Serialize, ToSchema)]
@@ -78,4 +79,25 @@ async fn create_note(
     model.insert(&state.db).await?;
 
     Ok(Json(NoteCreateResponse { success: true }))
+}
+
+/// Get notes
+#[utoipa::path(
+    method(get),
+    path = "/",
+    responses(
+    (status = OK, description = "Success", body = NoteCreateResponse),
+    (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Auth"
+)]
+async fn get_notes(
+    Extension(state): Extension<AppState>,
+)
+->AxumResult<Json<Vec<note::Model>>>{
+    let notes =  note::Entity::find()
+    .all(&state.db)
+    .await?;
+
+    Ok(Json(notes))
 }
