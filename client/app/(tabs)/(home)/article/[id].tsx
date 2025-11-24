@@ -26,7 +26,7 @@ export default function Users() {
         const { data, error } = await $api.GET("/api/notes/{id}", {
             params: { path: { id: parseInt(id[0]) } },
             headers: {
-                Authorization: token ?? "",
+                Authorization: token,
             },
         });
 
