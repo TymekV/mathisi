@@ -1,3 +1,5 @@
+mod id;
+
 use axum::{
     Extension, Json,
     extract::{DefaultBodyLimit, Multipart},
@@ -22,6 +24,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(upload_files))
         .layer(DefaultBodyLimit::max(1024 * 1024 * 10)) // 10 MB
+        .nest("/{id}", id::routes())
 }
 
 #[derive(Serialize, ToSchema)]
