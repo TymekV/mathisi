@@ -1,12 +1,11 @@
 import { apiBaseUrl } from "@/constants/apiBaseUrl";
 import { paths } from "@/types/api";
-import type { MarkdownStyle } from '@expensify/react-native-live-markdown';
 import * as SecureStore from 'expo-secure-store';
 import createClient from "openapi-fetch";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import Markdown from 'react-native-markdown-display'; // <--- IMPORT THIS
+import { ScrollView, StyleSheet, View } from "react-native";
+import Markdown from 'react-native-markdown-display';
 import { FAB, HelperText, SegmentedButtons, TextInput } from "react-native-paper";
 
 type Inputs = {
@@ -15,7 +14,7 @@ type Inputs = {
 }
 interface Props {
     remove: () => void,
-    text: string,
+    text: string, // External state for content
     updateText: React.Dispatch<React.SetStateAction<string>>
 }
 
@@ -25,7 +24,7 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
     const {
         control,
         handleSubmit,
-        watch,
+        // REMOVE watch here: watch,
         formState: { errors },
     } = useForm<Inputs>({
         defaultValues: {
@@ -34,7 +33,7 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
         },
     });
 
-    const contentValue = watch('content'); // Watch content for the preview
+    // REMOVE const contentValue = watch('content');
 
     const $api = createClient<paths>({
         baseUrl: apiBaseUrl,
@@ -104,37 +103,44 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
             </View>
 
             {/* Content Area */}
-            <View style={styles.editorContainer}>
-                {mode === 'edit' ? (
-                    <Controller
-                        control={control}
-                        name="content"
-                        rules={{ required: "Content is required" }}
-                        render={({ field: { onChange, value } }) => (
-                            <>
-                                <TextInput
-                                    onChangeText={onChange}
-                                    value={value}
-                                    multiline={true}
-                                    style={styles.markdownInput}
-                                    placeholder="Type Markdown here..."
-                                    placeholderTextColor="gray"
-                                />
-                                <HelperText type="error" visible={!!errors.content}>
-                                    {errors.content?.message}
-                                </HelperText>
-                            </>
-                        )}
-                    />
-                ) : (
-                    /* --- THIS IS WHERE THE PARSING HAPPENS --- */
+            {mode === 'edit' ? (
+                <Controller
+                    control={control}
+                    name="content"
+                    rules={{ required: "Content is required" }}
+                    render={({ field: { onChange, value } }) => (
+                        <>
+                            <TextInput
+                                onChangeText={(text) => {
+                                    onChange(text); // Update react-hook-form state
+                                    updateText(text); // Update external state for preview
+                                }}
+                                mode="outlined"
+                                value={value}
+                                multiline={true}
+                                style={styles.markdownInput}
+                                placeholder="Type Markdown here..."
+                                placeholderTextColor="gray"
+                            />
+                            <HelperText type="error" visible={!!errors.content}>
+                                {errors.content?.message}
+                            </HelperText>
+                        </>
+                    )}
+                />
+            ) : (
+                /* --- THIS IS WHERE THE PARSING HAPPENS --- */
+
+                <View style={styles.editorContainer}>
                     <ScrollView style={styles.previewContainer}>
                         <Markdown style={markdownStylesDisplay}>
-                            {contentValue}
+                            {/* Use the external 'text' prop instead of contentValue */}
+                            {text}
                         </Markdown>
                     </ScrollView>
-                )}
-            </View>
+
+                </View>
+            )}
         </View>
     );
 }
@@ -186,11 +192,3 @@ const markdownStylesDisplay = StyleSheet.create({
     code_inline: { backgroundColor: '#333', color: '#ff79c6' },
     code_block: { backgroundColor: '#333', padding: 10, borderRadius: 4 },
 });
-
-// Styles for the Live Input (Expensify) - Kept purely for syntax highlighting while typing
-const FONT_FAMILY_MONOSPACE = Platform.select({ ios: 'Courier', default: 'monospace' });
-const markdownStyle: MarkdownStyle = {
-    syntax: { color: 'gray' },
-    link: { color: '#61afef' },
-    code: { fontFamily: FONT_FAMILY_MONOSPACE, fontSize: 15, color: 'black', backgroundColor: '#98c379' },
-};
