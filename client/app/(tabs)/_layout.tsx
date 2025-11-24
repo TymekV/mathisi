@@ -1,6 +1,6 @@
 import TabBar from '@/components/TabBar';
 import { useAuth } from '@/lib/providers/auth';
-import { IconCamera, IconHome, IconUser } from '@tabler/icons-react-native';
+import { IconCamera, IconHome, IconUser, IconWorld } from '@tabler/icons-react-native';
 import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -23,6 +23,15 @@ export default function Layout() {
 
     return (
         <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
+            <Tabs.Screen
+                name="feed"
+                options={{
+                    title: 'Feed',
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconWorld color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
+                }}
+            />
             <Tabs.Screen
                 name="(home)"
                 options={{
