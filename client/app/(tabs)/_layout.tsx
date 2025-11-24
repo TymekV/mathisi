@@ -33,7 +33,7 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="(home)"
+                name="home"
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color, focused }) => (
@@ -60,7 +60,7 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="profile"
+                name="(home)"
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, focused }) => (

@@ -1,22 +1,24 @@
-import ArticleFeed from '@/components/article-feed';
-import { apiClient } from '@/lib/providers/api';
+import { UserProfile } from '@/components/user-profile';
+import { useAuth } from '@/lib/providers/auth';
+import { router } from 'expo-router';
+import React from 'react';
+import { ScrollView } from 'react-native';
+import { Button } from 'react-native-paper';
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
+    const { signOut } = useAuth();
 
-    // change end point
-    const notesQuery = apiClient.useQuery('get', '/api/notes', undefined, {
-        staleTime: 1000 * 60,
-    });
-
-    const items = notesQuery.data?.notes ?? []
+    async function handleLogout() {
+        await signOut();
+        router.replace('/(auth)/login');
+    }
 
     return (
-        <ArticleFeed
-            feed={items}
-            searchText='Search through your notes'
-            isPending={notesQuery.isPending}
-            isRefetching={notesQuery.isRefetching}
-            refetch={notesQuery.refetch}
-             />
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+            <UserProfile />
+            <Button mode="outlined" onPress={handleLogout} style={{ marginTop: 20 }}>
+                Log Out
+            </Button>
+        </ScrollView>
     );
 }
