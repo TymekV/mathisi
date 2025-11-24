@@ -15,6 +15,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .nest("/user", user::routes())
         .nest("/notes", notes::routes())
         .nest("/files", files::routes())
+        .nest("/feed", feed::routes())
         .layer(middleware::from_fn(with_auth));
 
     let public = OpenApiRouter::new()

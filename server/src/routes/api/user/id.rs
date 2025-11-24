@@ -2,7 +2,7 @@ use crate::{
     entity::{note, user},
     errors::{AxumError, AxumResult},
     middlewares::UnauthorizedError,
-    routes::api::notes::{self, NoteResponses},
+    routes::api::notes::{self, ManyNotesResponse},
     state::AppState,
 };
 use axum::{Extension, Json, extract::Path};
@@ -71,7 +71,7 @@ async fn get_user(
         ("id" = i32, Path, description = "User ID")
     ),
     responses(
-        (status = OK, description = "Success", body = NoteResponses),
+        (status = OK, description = "Success", body = ManyNotesResponse),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
     tag = "Notes"
@@ -79,7 +79,7 @@ async fn get_user(
 async fn get_user_notes(
     Extension(state): Extension<AppState>,
     Path(id): Path<i32>,
-) -> AxumResult<Json<NoteResponses>> {
+) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find()
         .filter(note::Column::UserId.eq(id))
         .all(&state.db)

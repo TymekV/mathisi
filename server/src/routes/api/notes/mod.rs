@@ -33,9 +33,9 @@ impl From<note::Model> for NoteResponse {
         }
     }
 }
-impl From<Vec<note::Model>> for NoteResponses {
+impl From<Vec<note::Model>> for ManyNotesResponse {
     fn from(notes: Vec<note::Model>) -> Self {
-        NoteResponses {
+        ManyNotesResponse {
             notes: notes.into_iter().map(NoteResponse::from).collect(),
         }
     }
@@ -90,7 +90,7 @@ pub struct NoteResponse {
 }
 
 #[derive(Serialize, ToSchema)]
-pub struct NoteResponses {
+pub struct ManyNotesResponse {
     pub notes: Vec<NoteResponse>,
 }
 
@@ -99,12 +99,12 @@ pub struct NoteResponses {
     method(get),
     path = "/",
     responses(
-        (status = OK, description = "Success", body = NoteResponses),
+        (status = OK, description = "Success", body = ManyNotesResponse),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
     tag = "Notes"
 )]
-async fn get_notes(Extension(state): Extension<AppState>) -> AxumResult<Json<NoteResponses>> {
+async fn get_notes(Extension(state): Extension<AppState>) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find().all(&state.db).await?;
     Ok(Json(notes.into()))
 }
