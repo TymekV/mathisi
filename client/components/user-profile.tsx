@@ -10,6 +10,7 @@ interface User {
     email: string;
     username: string;
     id: number;
+    created_at : string 
 }
 
 export default function UserProfile() {
@@ -39,10 +40,12 @@ export default function UserProfile() {
         }
 
         if (data) {
+            console.log(data);
             setUser({
                 username: data.username,
                 email: data.email,
                 id: data.id,
+                created_at: new Date(data.created_at).toLocaleString()
             });
         }
     }
@@ -54,6 +57,7 @@ export default function UserProfile() {
             ) : (
                 <>
                         <Text>Hello {user.username}</Text>
+                        <Text>Hello {user.created_at}</Text>
                 </>
             )}
         </View>
