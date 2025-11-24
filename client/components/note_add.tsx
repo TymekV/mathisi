@@ -1,11 +1,14 @@
 import { apiBaseUrl } from "@/constants/apiBaseUrl";
 import { paths } from "@/types/api";
+import type { MarkdownStyle } from '@expensify/react-native-live-markdown';
+import { MarkdownTextInput, parseExpensiMark } from '@expensify/react-native-live-markdown';
 import * as SecureStore from 'expo-secure-store';
 import createClient from "openapi-fetch";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
-import { FAB, HelperText, TextInput } from "react-native-paper";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import Markdown from 'react-native-markdown-display'; // <--- IMPORT THIS
+import { FAB, HelperText, SegmentedButtons, TextInput } from "react-native-paper";
 
 type Inputs = {
     title: string,
@@ -18,6 +21,8 @@ interface Props {
 }
 
 export default function NoteAddScreen({ remove, text, updateText }: Props) {
+    const [mode, setMode] = useState('edit'); // 'edit' | 'preview'
+
     const {
         control,
         handleSubmit,
@@ -30,6 +35,7 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
         },
     });
 
+    const contentValue = watch('content'); // Watch content for the preview
 
     const $api = createClient<paths>({
         baseUrl: apiBaseUrl,
@@ -40,11 +46,12 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
         const { data, error } = await $api.POST("/api/notes", {
             body: data_input,
             headers: {
-                Authorization: res
+                Authorization: res || ""
             }
         })
         if (data) {
-            alert("succes")
+            alert("success")
+            remove(); // Close after success
         }
         if (error) {
             alert("something went wrong")
@@ -52,79 +59,142 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
     }
 
     return (
-        <View>
+        <View style={styles.container}>
+            {/* Header Actions */}
             <View style={styles.centerContainer}>
                 <FAB
                     icon="close"
-                    variant="primary"
-                    size="medium"
+                    style={{ backgroundColor: '#ffcccc' }}
+                    size="small"
                     onPress={remove}
                 />
                 <FAB
                     icon="check"
-                    variant="primary"
-                    size="medium"
+                    style={{ backgroundColor: '#ccffcc' }}
+                    size="small"
                     onPress={handleSubmit(add)}
                 />
                 <Controller
                     control={control}
                     name="title"
-                    rules={{
-                        required: "Title is required",
-                    }}
+                    rules={{ required: "Title is required" }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <>
+                        <View style={styles.fill1}>
                             <TextInput
-                                style={styles.fill1}
                                 label="Title"
+                                mode="outlined"
                                 value={value}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 autoCapitalize="none"
                                 error={!!errors.title}
                             />
-                            <HelperText type="error" visible={!!errors.title}>
-                                {errors.title?.message}
-                            </HelperText>
-                        </>
+                        </View>
                     )}
                 />
-                </View>
-                <Controller
-                    control={control}
-                    name="content"
-                    rules={{
-                        required: "Content is required",
-                    }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <>
-                            <TextInput
-                                style={styles.fill1}
-                                label="Title"
-                                value={value}
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                autoCapitalize="none"
-                                error={!!errors.title}
-                            />
-                            <HelperText type="error" visible={!!errors.title}>
-                                {errors.title?.message}
-                            </HelperText>
-                        </>
-                    )}
-                />
-
             </View>
-    )
+
+            {/* Toggle Edit / Preview */}
+            <View style={{ marginBottom: 10 }}>
+                <SegmentedButtons
+                    value={mode}
+                    onValueChange={setMode}
+                    buttons={[
+                        { value: 'edit', label: 'Edit' },
+                        { value: 'preview', label: 'Preview' },
+                    ]}
+                />
+            </View>
+
+            {/* Content Area */}
+            <View style={styles.editorContainer}>
+                {mode === 'edit' ? (
+                    <Controller
+                        control={control}
+                        name="content"
+                        rules={{ required: "Content is required" }}
+                        render={({ field: { onChange, value } }) => (
+                            <>
+                                <MarkdownTextInput
+                                    onChangeText={onChange}
+                                    value={value}
+                                    parser={parseExpensiMark}
+                                    multiline={true}
+                                    style={styles.markdownInput}
+                                    markdownStyle={markdownStyle}
+                                    placeholder="Type Markdown here..."
+                                    placeholderTextColor="gray"
+                                />
+                                <HelperText type="error" visible={!!errors.content}>
+                                    {errors.content?.message}
+                                </HelperText>
+                            </>
+                        )}
+                    />
+                ) : (
+                    /* --- THIS IS WHERE THE PARSING HAPPENS --- */
+                    <ScrollView style={styles.previewContainer}>
+                        <Markdown style={markdownStylesDisplay}>
+                            {contentValue}
+                        </Markdown>
+                    </ScrollView>
+                )}
+            </View>
+        </View>
+    );
 }
+
 const styles = StyleSheet.create({
-    centerContainer: {
+    container: {
         flex: 1,
-        justifyContent: 'flex-start',
-        gap: 15,
+        padding: 10,
+        backgroundColor: '#1e1e1e',
+    },
+    centerContainer: {
         flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 10,
     },
     fill1: {
-        flexGrow: 1,
+        flex: 1,
+    },
+    editorContainer: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        backgroundColor: '#1e1e1e',
+    },
+    markdownInput: {
+        flex: 1,
+        color: 'white',
+        fontSize: 16,
+        padding: 10,
+        textAlignVertical: 'top',
+    },
+    previewContainer: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#252525',
     }
 });
+
+// Styles for the 'react-native-markdown-display' renderer
+const markdownStylesDisplay = {
+    body: { color: 'white' },
+    heading1: { color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+    heading2: { color: 'white', fontSize: 20, fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
+    list_item: { color: 'white', flexDirection: 'row', alignItems: 'flex-start' },
+    bullet_list_icon: { color: 'white', fontSize: 20 },
+    code_inline: { backgroundColor: '#333', color: '#ff79c6' },
+    code_block: { backgroundColor: '#333', padding: 10, borderRadius: 4 },
+};
+
+// Styles for the Live Input (Expensify) - Kept purely for syntax highlighting while typing
+const FONT_FAMILY_MONOSPACE = Platform.select({ ios: 'Courier', default: 'monospace' });
+const markdownStyle: MarkdownStyle = {
+    syntax: { color: 'gray' },
+    link: { color: '#61afef' },
+    code: { fontFamily: FONT_FAMILY_MONOSPACE, fontSize: 15, color: 'black', backgroundColor: '#98c379' },
+};

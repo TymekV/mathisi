@@ -10,7 +10,7 @@ import { FAB } from 'react-native-paper';
 
 export default function AddNewScreen() {
 
-  const [result, setResult] = React.useState("No Result");
+  const [result, setResult] = React.useState("");
   const [isLogged, setIsLogged] = useState<boolean>(false);
 
 
