@@ -102,7 +102,7 @@ export default function ArticleCard({ article: art }: Props) {
                             </Surface>
                         </View>
                         <View style={styles.details}>
-                            <Text>{art.author}</Text>
+                            <Text>Made by {art.author}</Text>
                              <Text>{timeAgo(art.created_at)}</Text>
                         </View>
                     </Text>
