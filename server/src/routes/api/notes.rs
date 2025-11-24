@@ -1,6 +1,4 @@
-// OSTROŻNIE, PONIZSZY KOD BYL MOCNO ZROBIONY PRZEZ IDOTY KTORY CZYTAL KOD WZORCOWY I ODPOWIRDZI AI, POWODZENIA
-
-use axum::{ Extension, Json, extract::Path};
+use axum::{Extension, Json, extract::Path};
 use axum_valid::Valid;
 use chrono::{DateTime, Utc};
 use color_eyre::eyre::eyre;
@@ -10,23 +8,32 @@ use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use validator::Validate;
 
-use crate::{entity::{note, user}, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, state::AppState};
+use crate::{
+    entity::{note, user},
+    errors::{AxumError, AxumResult},
+    middlewares::UnauthorizedError,
+    state::AppState,
+};
 
 pub fn routes() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(create_note)).routes(routes!(get_notes)).routes(routes!(get_note))
+    OpenApiRouter::new()
+        .routes(routes!(create_note))
+        .routes(routes!(get_notes))
+        .routes(routes!(get_note))
 }
 
 #[derive(Serialize, ToSchema)]
 pub struct NoteResponse {
     pub id: i32,
     pub user_id: i32,
-
     pub created_at: DateTime<Utc>,
-
     pub title: String,
     pub content: String,
 }
-
+#[derive(Serialize, ToSchema)]
+pub struct NoteResponses {
+    pub notes : Vec<NoteResponse>,
+}
 #[derive(Serialize, ToSchema)]
 pub struct NoteCreateResponse {
     pub success: bool,
@@ -34,7 +41,6 @@ pub struct NoteCreateResponse {
 
 #[derive(Deserialize, ToSchema, Validate)]
 pub struct NoteCreateRequest {
-    //#[validate(value(min=0))]
     pub title: String,
     pub content: String,
 }
@@ -50,18 +56,24 @@ impl From<note::Model> for NoteResponse {
         }
     }
 }
+impl From<Vec<note::Model>> for NoteResponses {
+    fn from(notes: Vec<note::Model>) -> Self {
+        NoteResponses {
+            notes : notes.into_iter().map(NoteResponse::from).collect()
+        }
+    }
+}
 
 /// Create note 
 #[utoipa::path(
     method(post),
     path = "/",
     responses(
-    (status = OK, description = "Success", body = NoteCreateResponse),
-    (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+        (status = OK, description = "Success", body = NoteCreateResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
-    tag = "Auth"
+    tag = "Notes"
 )]
-
 async fn create_note(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<user::Model>,
@@ -81,47 +93,47 @@ async fn create_note(
     Ok(Json(NoteCreateResponse { success: true }))
 }
 
-/// Get notes
+/// Get all notes
 #[utoipa::path(
     method(get),
     path = "/",
     responses(
-    (status = OK, description = "Success", body = NoteCreateResponse),
-    (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+        (status = OK, description = "Success", body = NoteResponses),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
-    tag = "Auth"
+    tag = "Notes"
 )]
 async fn get_notes(
     Extension(state): Extension<AppState>,
-)
-->AxumResult<Json<Vec<note::Model>>>{
-    let notes =  note::Entity::find()
-    .all(&state.db)
-    .await?;
+) -> AxumResult<Json<NoteResponses>> {
 
-    Ok(Json(notes))
+    let notes = note::Entity::find().all(&state.db).await?;
+    Ok(Json(notes.into()))
 }
 
-// Single note data
+/// Get single note
 #[utoipa::path(
     method(get),
     path = "/{id}",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
     responses(
         (status = OK, description = "Success", body = NoteResponse),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
-    tag = "Auth"
+    tag = "Notes"
 )]
 #[axum::debug_handler]
 async fn get_note(
     Extension(state): Extension<AppState>,
     Path(id): Path<i32>,
-) -> AxumResult<Json<note::Model>> { // Changed return type for simplicity
+) -> AxumResult<Json<NoteResponse>> {
 
-    let note_option = note::Entity::find_by_id(id)
+    let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
-        
-        Ok(Json(note_option))
+
+    Ok(Json(note.into()))
 }
