@@ -4,11 +4,12 @@ use chrono::NaiveDateTime;
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
-use sea_orm::EntityTrait;
-use crate::{entity::user, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, state::AppState};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use crate::{entity::{note, user}, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, routes::api::notes::{self, NoteResponses}, state::AppState};
 
 pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(get_user))
+    .routes(routes!(get_user_notes))
 }
 
 #[derive(Serialize, ToSchema)]
@@ -53,4 +54,30 @@ async fn get_user(
         .ok_or_else(|| AxumError::not_found(eyre!("User not found")))?;
 
     Ok(Json(user.into()))
+}
+
+/// Get user public info 
+#[utoipa::path(
+    method(get),
+    path = "/notes",
+    params(
+        ("id" = i32, Path, description = "User ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteResponses),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn get_user_notes(
+    Extension(state): Extension<AppState>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteResponses>>{
+
+    let notes = note::Entity::find()
+    .filter(note::Column::UserId.eq(id))
+    .all(&state.db)
+    .await?;
+
+    Ok(Json(notes.into()))
 }
