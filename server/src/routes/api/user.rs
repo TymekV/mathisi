@@ -1,3 +1,5 @@
+mod id;
+
 use axum::{Extension, Json};
 use chrono::NaiveDateTime;
 use serde::Serialize;
@@ -8,6 +10,7 @@ use crate::{entity::user, errors::AxumResult, middlewares::UnauthorizedError, st
 
 pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(get_current_user))
+    .nest("/{id}", id::routes())
 }
 
 #[derive(Serialize, ToSchema)]
