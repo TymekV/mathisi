@@ -2,7 +2,6 @@ mod login;
 mod register;
 mod user;
 mod notes;
-mod note;
 
 use axum::middleware;
 use utoipa_axum::router::OpenApiRouter;
