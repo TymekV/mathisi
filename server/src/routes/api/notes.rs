@@ -1,7 +1,8 @@
-use axum::{Extension, Json, extract::Path};
+mod id;
+
+use axum::{Extension, Json};
 use axum_valid::Valid;
 use chrono::{DateTime, Utc};
-use color_eyre::eyre::eyre;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -10,39 +11,15 @@ use validator::Validate;
 
 use crate::{
     entity::{note, user},
-    errors::{AxumError, AxumResult},
+    errors::AxumResult,
     middlewares::UnauthorizedError,
     state::AppState,
 };
 
 pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
-        .routes(routes!(create_note))
-        .routes(routes!(get_notes))
-        .routes(routes!(get_note))
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct NoteResponse {
-    pub id: i32,
-    pub user_id: i32,
-    pub created_at: DateTime<Utc>,
-    pub title: String,
-    pub content: String,
-}
-#[derive(Serialize, ToSchema)]
-pub struct NoteResponses {
-    pub notes : Vec<NoteResponse>,
-}
-#[derive(Serialize, ToSchema)]
-pub struct NoteCreateResponse {
-    pub success: bool,
-}
-
-#[derive(Deserialize, ToSchema, Validate)]
-pub struct NoteCreateRequest {
-    pub title: String,
-    pub content: String,
+        .routes(routes!(create_note, get_notes))
+        .nest("/{id}", id::routes())
 }
 
 impl From<note::Model> for NoteResponse {
@@ -59,12 +36,23 @@ impl From<note::Model> for NoteResponse {
 impl From<Vec<note::Model>> for NoteResponses {
     fn from(notes: Vec<note::Model>) -> Self {
         NoteResponses {
-            notes : notes.into_iter().map(NoteResponse::from).collect()
+            notes: notes.into_iter().map(NoteResponse::from).collect(),
         }
     }
 }
 
-/// Create note 
+#[derive(Serialize, ToSchema)]
+pub struct NoteCreateResponse {
+    pub success: bool,
+}
+
+#[derive(Deserialize, ToSchema, Validate)]
+pub struct NoteCreateRequest {
+    pub title: String,
+    pub content: String,
+}
+
+/// Create note
 #[utoipa::path(
     method(post),
     path = "/",
@@ -79,7 +67,6 @@ async fn create_note(
     Extension(user): Extension<user::Model>,
     Valid(Json(body)): Valid<Json<NoteCreateRequest>>,
 ) -> AxumResult<Json<NoteCreateResponse>> {
-
     let model = note::ActiveModel {
         user_id: Set(user.id),
         title: Set(body.title),
@@ -93,6 +80,20 @@ async fn create_note(
     Ok(Json(NoteCreateResponse { success: true }))
 }
 
+#[derive(Serialize, ToSchema)]
+pub struct NoteResponse {
+    pub id: i32,
+    pub user_id: i32,
+    pub created_at: DateTime<Utc>,
+    pub title: String,
+    pub content: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct NoteResponses {
+    pub notes: Vec<NoteResponse>,
+}
+
 /// Get all notes
 #[utoipa::path(
     method(get),
@@ -103,37 +104,7 @@ async fn create_note(
     ),
     tag = "Notes"
 )]
-async fn get_notes(
-    Extension(state): Extension<AppState>,
-) -> AxumResult<Json<NoteResponses>> {
-
+async fn get_notes(Extension(state): Extension<AppState>) -> AxumResult<Json<NoteResponses>> {
     let notes = note::Entity::find().all(&state.db).await?;
     Ok(Json(notes.into()))
-}
-
-/// Get single note
-#[utoipa::path(
-    method(get),
-    path = "/{id}",
-    params(
-        ("id" = i32, Path, description = "Note ID")
-    ),
-    responses(
-        (status = OK, description = "Success", body = NoteResponse),
-        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
-    ),
-    tag = "Notes"
-)]
-#[axum::debug_handler]
-async fn get_note(
-    Extension(state): Extension<AppState>,
-    Path(id): Path<i32>,
-) -> AxumResult<Json<NoteResponse>> {
-
-    let note = note::Entity::find_by_id(id)
-        .one(&state.db)
-        .await?
-        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
-
-    Ok(Json(note.into()))
 }
