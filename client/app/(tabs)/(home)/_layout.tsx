@@ -7,7 +7,6 @@ export const unstable_settings = {
 export default function FeedLayout() {
     return (
         <Stack>
-            <Stack.Screen name="feed" options={{ headerShown: false, title: 'Feed' }} />
             <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
             <Stack.Screen name="article/[id]" options={{ headerShown: false, headerTitle: "" }} />
         </Stack>

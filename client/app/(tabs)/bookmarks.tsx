@@ -1,7 +1,7 @@
 import ArticleFeed from '@/components/article-feed';
 import { apiClient } from '@/lib/providers/api';
 
-export default function FeedScreen() {
+export default function BookMarkScreen() {
 
     // change end point
     const notesQuery = apiClient.useQuery('get', '/api/notes', undefined, {
