@@ -177,11 +177,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         backgroundColor: '#252525',
+        color: 'white'
     }
 });
 
 // Styles for the 'react-native-markdown-display' renderer
-const markdownStylesDisplay = {
+const markdownStylesDisplay = StyleSheet.create({
     body: { color: 'white' },
     heading1: { color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
     heading2: { color: 'white', fontSize: 20, fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
@@ -189,7 +190,7 @@ const markdownStylesDisplay = {
     bullet_list_icon: { color: 'white', fontSize: 20 },
     code_inline: { backgroundColor: '#333', color: '#ff79c6' },
     code_block: { backgroundColor: '#333', padding: 10, borderRadius: 4 },
-};
+});
 
 // Styles for the Live Input (Expensify) - Kept purely for syntax highlighting while typing
 const FONT_FAMILY_MONOSPACE = Platform.select({ ios: 'Courier', default: 'monospace' });
