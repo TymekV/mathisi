@@ -1,7 +1,6 @@
 import { apiBaseUrl } from "@/constants/apiBaseUrl";
 import { paths } from "@/types/api";
 import type { MarkdownStyle } from '@expensify/react-native-live-markdown';
-import { MarkdownTextInput, parseExpensiMark } from '@expensify/react-native-live-markdown';
 import * as SecureStore from 'expo-secure-store';
 import createClient from "openapi-fetch";
 import React, { useState } from "react";
@@ -64,13 +63,11 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
             <View style={styles.centerContainer}>
                 <FAB
                     icon="close"
-                    style={{ backgroundColor: '#ffcccc' }}
                     size="small"
                     onPress={remove}
                 />
                 <FAB
                     icon="check"
-                    style={{ backgroundColor: '#ccffcc' }}
                     size="small"
                     onPress={handleSubmit(add)}
                 />
@@ -101,7 +98,7 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
                     onValueChange={setMode}
                     buttons={[
                         { value: 'edit', label: 'Edit' },
-                        { value: 'preview', label: 'Preview' },
+                        { value: 'preview', label: 'Preview MarkDown' },
                     ]}
                 />
             </View>
@@ -115,13 +112,11 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
                         rules={{ required: "Content is required" }}
                         render={({ field: { onChange, value } }) => (
                             <>
-                                <MarkdownTextInput
+                                <TextInput
                                     onChangeText={onChange}
                                     value={value}
-                                    parser={parseExpensiMark}
                                     multiline={true}
                                     style={styles.markdownInput}
-                                    markdownStyle={markdownStyle}
                                     placeholder="Type Markdown here..."
                                     placeholderTextColor="gray"
                                 />
