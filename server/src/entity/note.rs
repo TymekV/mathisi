@@ -2,8 +2,7 @@ use chrono::{DateTime, Utc};
 use sea_orm::entity::prelude::*;
 
 #[sea_orm::model]
-#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
-#[derive(serde::Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, serde::Serialize)]
 #[sea_orm(table_name = "notes")]
 pub struct Model {
     #[sea_orm(primary_key)]
@@ -23,7 +22,7 @@ pub struct Model {
     #[sea_orm(has_many, via = "note_tags")]
     pub tags: HasMany<super::tag::Entity>,
 
-    #[sea_orm(has_many)]
+    #[sea_orm(has_many, via = "note_files")]
     pub files: HasMany<super::file::Entity>,
 
     #[sea_orm(has_many)]

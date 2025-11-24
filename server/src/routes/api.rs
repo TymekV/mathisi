@@ -1,7 +1,8 @@
+mod files;
 mod login;
+mod notes;
 mod register;
 mod user;
-mod notes;
 
 use axum::middleware;
 use utoipa_axum::router::OpenApiRouter;
@@ -12,6 +13,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
     let auth = OpenApiRouter::new()
         .nest("/user", user::routes())
         .nest("/notes", notes::routes())
+        .nest("/files", files::routes())
         .layer(middleware::from_fn(with_auth));
 
     let public = OpenApiRouter::new()
