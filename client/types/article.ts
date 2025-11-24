@@ -10,6 +10,7 @@ export interface article {
     upvotes?: number,
     
     time_ago?: string,
+    created_at: string
     upvote?: number,
     saved?: boolean
 }

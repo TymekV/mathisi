@@ -51,9 +51,35 @@ export default function ArticleCard({ article: art }: Props) {
     function Share() {
         alert("Promt to share with link");
     }
-    function Save(){
+    function Save() {
         alert("Saved!");
     }
+    function timeAgo(dateString: string) {
+        // chatGPT generate function
+        const now = new Date();
+        const created = new Date(dateString);
+        const seconds = Math.floor((now.getTime() - created.getTime()) / 1000);
+
+        const intervals: Record<string, number> = {
+            year: 31536000,
+            month: 2592000,
+            week: 604800,
+            day: 86400,
+            hour: 3600,
+            minute: 60
+        };
+
+        for (const key in intervals) {
+            const value = intervals[key];
+            const result = Math.floor(seconds / value);
+            if (result >= 1) {
+                return `${result} ${key}${result > 1 ? 's' : ''} ago`;
+            }
+        }
+
+        return "just now";
+    }
+
 
     return (
         <Card>
@@ -77,7 +103,7 @@ export default function ArticleCard({ article: art }: Props) {
                         </View>
                         <View style={styles.details}>
                             <Text>{art.author}</Text>
-                            <Text>{art.time_ago}</Text>
+                             <Text>{timeAgo(art.created_at)}</Text>
                         </View>
                     </Text>
                 }
