@@ -9,8 +9,9 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use crate::{entity::user, errors::AxumResult, middlewares::UnauthorizedError, state::AppState};
 
 pub fn routes() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(get_current_user))
-    .nest("/{id}", id::routes())
+    OpenApiRouter::new()
+        .routes(routes!(get_current_user))
+        .nest("/{id}", id::routes())
 }
 
 #[derive(Serialize, ToSchema)]

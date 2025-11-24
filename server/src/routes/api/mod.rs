@@ -1,3 +1,4 @@
+mod feed;
 mod files;
 mod login;
 mod notes;
