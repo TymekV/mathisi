@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get notes */
+        /** Get all notes */
         get: operations["get_notes"];
         put?: never;
         /** Create note */
@@ -46,6 +46,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Get single note */
         get: operations["get_note"];
         put?: never;
         post?: never;
@@ -116,6 +117,9 @@ export interface components {
             title: string;
             /** Format: int32 */
             user_id: number;
+        };
+        NoteResponses: {
+            notes: components["schemas"]["NoteResponse"][];
         };
         RegisterRequest: {
             email: string;
@@ -189,7 +193,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["NoteCreateResponse"];
+                    "application/json": components["schemas"]["NoteResponses"];
                 };
             };
             /** @description Unauthorized */
@@ -241,6 +245,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description Note ID */
                 id: number;
             };
             cookie?: never;
