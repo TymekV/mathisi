@@ -10,7 +10,7 @@ interface User {
     email: string;
     username: string;
     id: number;
-    created_at : string 
+    created_at: string
 }
 
 export default function UserProfile() {
@@ -41,11 +41,18 @@ export default function UserProfile() {
 
         if (data) {
             console.log(data);
+            const date = new Date(data.created_at);
             setUser({
                 username: data.username,
                 email: data.email,
                 id: data.id,
-                created_at: new Date(data.created_at).toLocaleString()
+                created_at: date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                })
             });
         }
     }
@@ -56,8 +63,8 @@ export default function UserProfile() {
                 <ActivityIndicator animating={true} />
             ) : (
                 <>
-                        <Text>Hello {user.username}</Text>
-                        <Text>Hello {user.created_at}</Text>
+                    <Text>Hello {user.username}</Text>
+                    <Text>Create at {user.created_at}</Text>
                 </>
             )}
         </View>
