@@ -37,19 +37,44 @@ export default function AddNewScreen() {
 
     if (files) {
       const headers: Record<string, string> = {};
-      if (token) headers.Authorization = token;
+      if (token) {
+        headers.Authorization = token;
 
-      const { data, error } = await $api.POST("/api/files", {
-        headers,
-        body: files as any,
-      
-      });
+        const { data, error } = await $api.POST("/api/files", {
+          headers: {
+            Authorization: token
+          },
+          body: files as any,
 
-      console.log(data)
+        });
+
+
+        data?.files.forEach(async (i) => {
+          const { data, error } = await $api.PATCH("/api/files/{id}", {
+            params:{
+              path:{
+                id: i.id
+              }
+            },
+            headers: {
+              Authorization: token
+            },
+            body: {
+              filename : i.filename,
+              ocr: text,
+
+            },
+
+          });
+
+          console.log(data)
+        })
+
+      }
+
+
     }
 
-    setWriting(text);
-    setIsWriting(true);
   };
 
   async function askFiles() {
