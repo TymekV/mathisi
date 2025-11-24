@@ -1,3 +1,6 @@
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from 'react';
 import '../global.css';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -19,7 +22,8 @@ import {
 import 'react-native-reanimated';
 
 export const unstable_settings = {
-    anchor: '(tabs)',
+    initialRouteName: 'index',
+    anchor: 'index',
 };
 
 export default function RootLayout() {
@@ -38,6 +42,21 @@ export default function RootLayout() {
         materialLight: MD3LightTheme,
     });
 
+    const [isLoged, setIsLoged] = useState<boolean>(false);
+
+    useEffect(() => {
+        checkLogin();
+    }, []);
+
+    async function checkLogin() {
+        const token = await SecureStore.getItemAsync('token');
+        setIsLoged(!!token);
+        if (!isLoged) {
+            router.navigate('../');
+        }
+    }
+
+
     return (
         <Query>
             <ThemeProvider
@@ -48,9 +67,10 @@ export default function RootLayout() {
                 }
             >
                 <PaperProvider theme={paperTheme}>
-                    <Stack>
+                    <Stack initialRouteName='index'>
+
+                        <Stack.Screen name="index" options={{ headerShown: false }} />
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                        <Stack.Screen name="article" options={{ headerShown: false }} />
                         <Stack.Screen
                             name="modal"
                             options={{ presentation: 'modal', title: 'Modal' }}

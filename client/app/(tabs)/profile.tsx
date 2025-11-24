@@ -1,77 +1,26 @@
-import LogInCard from '@/components/log-in';
-import SignInCard from '@/components/sign-in';
+// profile.tsx
 import UserProfile from '@/components/user-profile';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { ScrollView } from 'react-native';
 import { Button } from 'react-native-paper';
 
 export default function ProfileScreen() {
-  const [isLoged, setIsLoged] = useState<boolean>(false);
-  const [isLogging, setIsLogging] = useState<boolean>(true);
 
 
-  const handleLoginPress = () => {
-    setIsLogging(true);
-  };
-
-  const handleRegisterPress = () => {
-    setIsLogging(false);
-  };
-
-  useEffect(() => {
-    checkLogin()
-  })
-  async function checkLogin() {
-      const res = await SecureStore.getItemAsync('token')
-      if (res) {
-        console.log("i am logged");
-        setIsLoged(true)
-      }
-
-  }
   async function logOut() {
     await SecureStore.deleteItemAsync('token');
-    setIsLoged(false);
+    router.replace("/")
   }
 
-  return (
-    <ScrollView>
-      {
-        isLoged ?
-          <View>
-            <UserProfile></UserProfile>
-            <Button mode='elevated' onPress={logOut}>Log Out</Button>
-          </View>
-          :
-          <View style={styles.centerContainer}>
-            {
-              isLogging ?
-                <LogInCard onRegisterPress={handleRegisterPress} onLogin={checkLogin} />
-                :
-                <SignInCard onLoginPress={handleLoginPress} onLogin={checkLogin}/>
-            }
-          </View>
-      }
 
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <UserProfile />
+      <Button mode="outlined" onPress={logOut} style={{ marginTop: 20 }}>
+        Log Out
+      </Button>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  bottom: {
-    flex: 1,
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    paddingTop: 5
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  card: {
-    width: '90%',
-  },
-});
