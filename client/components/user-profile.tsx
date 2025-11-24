@@ -38,7 +38,7 @@ export default function UserProfile() {
             console.error(error);
             return;
         }
-
+        
         if (data) {
             console.log(data);
             const date = new Date(data.created_at);
