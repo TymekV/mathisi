@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/providers/auth';
 import { IconFeather } from '@tabler/icons-react-native';
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
 
 export default function RegisterScreen() {
@@ -24,26 +24,37 @@ export default function RegisterScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.hero}>
-                <View style={[styles.iconContainer, { backgroundColor: theme.colors.secondary }]}>
-                    <IconFeather size={48} color={theme.colors.onSecondary} strokeWidth={1.4} />
+        <KeyboardAvoidingView
+            style={styles.flex}
+            behavior={Platform.select({ ios: 'padding', android: 'height' })}
+        >
+            <ScrollView
+                contentContainerStyle={styles.container}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.hero}>
+                    <View style={[styles.iconContainer, { backgroundColor: theme.colors.secondary }]}>
+                        <IconFeather size={48} color={theme.colors.onSecondary} strokeWidth={1.4} />
+                    </View>
+                    <Text variant="headlineMedium" style={styles.heroTitle}>
+                        Join Mathisi
+                    </Text>
+                    <Text variant="bodyLarge" style={styles.heroSubtitle}>
+                        Create an account to sync notes across every device.
+                    </Text>
                 </View>
-                <Text variant="headlineMedium" style={styles.heroTitle}>
-                    Join Mathisi
-                </Text>
-                <Text variant="bodyLarge" style={styles.heroSubtitle}>
-                    Create an account to sync notes across every device.
-                </Text>
-            </View>
-            <RegisterForm onNavigateToLogin={() => router.replace('/(auth)/login')} />
-        </View>
+                <RegisterForm onNavigateToLogin={() => router.replace('/(auth)/login')} />
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    flex: {
         flex: 1,
+    },
+    container: {
+        flexGrow: 1,
         padding: 24,
         gap: 32,
         justifyContent: 'center',

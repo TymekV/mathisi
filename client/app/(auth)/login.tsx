@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/providers/auth';
 import { IconNotebook } from '@tabler/icons-react-native';
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
 
 export default function LoginScreen() {
@@ -24,26 +24,35 @@ export default function LoginScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.hero}>
-                <View style={[styles.iconContainer, { backgroundColor: theme.colors.primary }]}>
-                    <IconNotebook size={48} color={theme.colors.onPrimary} strokeWidth={1.4} />
+        <KeyboardAvoidingView
+            style={styles.flex}
+            behavior={Platform.select({ ios: 'padding', android: 'height' })}
+        >
+            <ScrollView
+                contentContainerStyle={styles.container}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.hero}>
+                    <View style={[styles.iconContainer, { backgroundColor: theme.colors.primary }]}>
+                        <IconNotebook size={48} color={theme.colors.onPrimary} strokeWidth={1.4} />
+                    </View>
+                    <Text variant="headlineMedium" style={styles.heroTitle}>Mathisi</Text>
+                    <Text variant="bodyLarge" style={styles.heroSubtitle}>
+                        Capture, search, and revisit your handwritten knowledge.
+                    </Text>
                 </View>
-                <Text variant="headlineMedium" style={styles.heroTitle}>
-                    Mathisi
-                </Text>
-                <Text variant="bodyLarge" style={styles.heroSubtitle}>
-                    Capture, search, and revisit your handwritten knowledge.
-                </Text>
-            </View>
-            <LoginForm onNavigateToRegister={() => router.push('/(auth)/register')} />
-        </View>
+                <LoginForm onNavigateToRegister={() => router.push('/(auth)/register')} />
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    flex: {
         flex: 1,
+    },
+    container: {
+        flexGrow: 1,
         padding: 24,
         gap: 32,
         justifyContent: 'center',

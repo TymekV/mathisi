@@ -2,7 +2,6 @@ import { NoteComposer } from '@/components/note-composer';
 import { apiClient } from '@/lib/providers/api';
 import { OCR } from '@dccarmo/react-native-ocr';
 import { IconFileDescription, IconPhoto } from '@tabler/icons-react-native';
-import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -21,59 +20,63 @@ export default function AddNewScreen() {
 
     const pickImage = async () => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 1,
+            allowsMultipleSelection: true,
         });
 
-        if (pickerResult.canceled) return;
+        if (pickerResult.canceled || !pickerResult.assets?.length) {
+            return;
+        }
 
-        const uri = pickerResult.assets[0].uri;
-        const text = await OCR.recognizeText(uri);
-        setWriting(text || '');
-        setIsWriting(true);
+        const assets = pickerResult.assets;
+        const ocrEntries: { filename: string; text: string }[] = [];
+        const formData = new FormData();
 
-        const files = await askFiles();
+        for (const asset of assets) {
+            formData.append('files', {
+                uri: asset.uri,
+                name: asset.fileName || `image-${asset.assetId || Date.now()}.jpg`,
+                type: asset.mimeType || 'image/jpeg',
+            } as any);
 
-        if (files) {
             try {
-                const uploadResponse = await uploadFilesMutation.mutateAsync({
-                    body: files as any,
-                });
-                await Promise.all(
-                    uploadResponse?.files.map((file) =>
-                        updateFileMutation.mutateAsync({
-                            params: { path: { id: file.id } },
-                            body: { filename: file.filename, ocr: text },
-                        })
-                    ) ?? []
-                );
+                const text = (await OCR.recognizeText(asset.uri))?.trim() ?? '';
+                ocrEntries.push({ filename: asset.fileName || asset.uri, text });
             } catch (error) {
-                console.error('Failed to process files', error);
+                console.error('OCR failed for asset', asset.uri, error);
+                ocrEntries.push({ filename: asset.fileName || asset.uri, text: '' });
             }
         }
-    };
 
-    async function askFiles() {
-        const files = await DocumentPicker.getDocumentAsync({
-            multiple: true,
-            copyToCacheDirectory: true,
-        });
+        const combinedText = ocrEntries
+            .map((entry) => entry.text)
+            .filter(Boolean)
+            .join('\n\n');
 
-        if (!files.assets || files.assets.length === 0) {
-            return null;
+        setWriting(combinedText || '');
+        setIsWriting(true);
+
+        try {
+            const uploadResponse = await uploadFilesMutation.mutateAsync({
+                body: formData as any,
+            });
+
+            await Promise.all(
+                uploadResponse?.files.map((file, index) =>
+                    updateFileMutation.mutateAsync({
+                        params: { path: { id: file.id } },
+                        body: {
+                            filename: file.filename,
+                            ocr: ocrEntries[index]?.text ?? '',
+                        },
+                    })
+                ) ?? []
+            );
+        } catch (error) {
+            console.error('Failed to process files', error);
         }
-
-        const formData = new FormData();
-        files.assets.forEach((file) => {
-            formData.append('files', {
-                uri: file.uri,
-                name: file.name,
-                type: file.mimeType || 'application/octet-stream',
-            } as any);
-        });
-
-        return formData;
-    }
+    };
 
     const handleComposerClose = () => {
         setWriting('');
