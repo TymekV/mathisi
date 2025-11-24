@@ -1,6 +1,11 @@
 import NoteAddScreen from "@/components/note_add";
+import { apiBaseUrl } from "@/constants/apiBaseUrl";
+import { paths } from "@/types/api";
 import { OCR } from "@dccarmo/react-native-ocr";
+import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from "expo-image-picker";
+import * as SecureStore from 'expo-secure-store';
+import createClient from "openapi-fetch";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FAB } from 'react-native-paper';
@@ -9,21 +14,65 @@ export default function AddNewScreen() {
   const [isWriting, setIsWriting] = useState<boolean>(false);
   const [writing, setWriting] = useState<string>("");
 
-  const pickImage = async () => {
 
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const $api = createClient<paths>({
+    baseUrl: apiBaseUrl,
+  });
+
+  const startScratch = () => setIsWriting(true);
+
+  const pickImage = async () => {
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
       quality: 1,
     });
 
-    if (!pickerResult.canceled) {
-      const uri = pickerResult.assets[0].uri;
-      const text = await OCR.recognizeText(uri);
-      setWriting(text);
-      setIsWriting(true);
+    if (pickerResult.canceled) return;
+
+    const uri = pickerResult.assets[0].uri;
+    const text = await OCR.recognizeText(uri);
+
+    const token = await SecureStore.getItemAsync("token");
+    const files = await askFiles();
+
+    if (files) {
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = token;
+
+      const { data, error } = await $api.POST("/api/files", {
+        headers,
+        body: files as any,
+      
+      });
+
+      console.log(data)
     }
+
+    setWriting(text);
+    setIsWriting(true);
   };
-  const startScratch = () => setIsWriting(true);
+
+  async function askFiles() {
+    const files = await DocumentPicker.getDocumentAsync({
+      multiple: true,
+      copyToCacheDirectory: true,
+    });
+
+    if (!files.assets || files.assets.length === 0) {
+      return null;
+    }
+
+    const formData = new FormData();
+    files.assets.forEach((file) => {
+      formData.append("files", {
+        uri: file.uri,
+        name: file.name,
+        type: file.mimeType || "application/octet-stream",
+      } as any);
+    });
+
+    return formData;
+  }
 
   const remove = () => {
     setWriting("");
@@ -59,14 +108,14 @@ export default function AddNewScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    flexGrow: 1,                    // allows content to fill the screen
+    flexGrow: 1,
 
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,           // optional breathing room
+    paddingVertical: 40,
     gap: 15
   },
   fab: {

@@ -33,6 +33,8 @@ export default function NoteAddScreen({ remove, text, updateText }: Props) {
         },
     });
 
+
+
     // REMOVE const contentValue = watch('content');
 
     const $api = createClient<paths>({
