@@ -23,6 +23,8 @@ pub struct Model {
 
     pub filename: String,
 
+    pub ocr: Option<String>,
+
     pub data: Vec<u8>,
 }
 
