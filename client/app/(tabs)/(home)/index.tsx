@@ -39,7 +39,7 @@ export default function HomeScreen() {
     }
 
     if (data) {
-      setNotes(data.);
+      setNotes(data.notes);
     }
   }
 
@@ -54,7 +54,7 @@ export default function HomeScreen() {
       />
 
       <FlatList
-        data={sample}
+        data={notes}
         renderItem={({ item }) =>
           <View style={styles.cardContainer} >
             <ArticleCard article={item} />
