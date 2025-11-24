@@ -58,7 +58,6 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                 await createNoteMutation.mutateAsync({ body: values });
             } catch (error) {
                 console.error('Failed to create note', error);
-                // onError handler already sets the message
             }
         },
         [createNoteMutation]
@@ -134,6 +133,7 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                             <TextInput
                                 mode="outlined"
                                 multiline
+                                activeOutlineColor='#ffffff40'
                                 value={value}
                                 onChangeText={(nextValue) => {
                                     onChange(nextValue);
@@ -151,7 +151,12 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                 />
             ) : (
                 <ScrollView style={styles.preview}>
-                    <Markdown>{previewContent}</Markdown>
+                    <Markdown
+                        style={{
+                            body: { color: 'white' },
+                            text: { color: 'white' },
+                        }}
+                    >{previewContent}</Markdown>
                 </ScrollView>
             )}
 
@@ -175,8 +180,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     textArea: {
+        flex: 1,
         minHeight: 200,
         textAlignVertical: 'top',
+        padding: 10
     },
     preview: {
         minHeight: 200,
@@ -184,5 +191,6 @@ const styles = StyleSheet.create({
         padding: 16,
         borderWidth: 1,
         borderColor: '#ffffff12',
+
     },
 });
