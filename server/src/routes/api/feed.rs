@@ -11,7 +11,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(get_feed))
 }
 
-/// Get all notes
+/// Get public notes for your feed
 #[utoipa::path(
     method(get),
     path = "/",
@@ -24,7 +24,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
 async fn get_feed(Extension(state): Extension<AppState>) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find()
         .filter(note::Column::Public.eq(true))
-        .order_by_asc(note::Column::CreatedAt)
+        .order_by_desc(note::Column::CreatedAt)
         .all(&state.db)
         .await?;
     Ok(Json(notes.into()))

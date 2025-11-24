@@ -3,7 +3,9 @@ mod id;
 use axum::{Extension, Json};
 use axum_valid::Valid;
 use chrono::{DateTime, Utc};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, QueryOrder,
+};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -50,6 +52,7 @@ pub struct NoteCreateResponse {
 pub struct NoteCreateRequest {
     pub title: String,
     pub content: String,
+    pub public: Option<bool>,
 }
 
 /// Create note
@@ -72,6 +75,7 @@ async fn create_note(
         title: Set(body.title),
         content: Set(body.content),
         created_at: Set(Utc::now()),
+        public: Set(body.public.unwrap_or(false)),
         ..Default::default()
     };
 
@@ -94,7 +98,7 @@ pub struct ManyNotesResponse {
     pub notes: Vec<NoteResponse>,
 }
 
-/// Get all notes
+/// Get all your notes
 #[utoipa::path(
     method(get),
     path = "/",
@@ -104,7 +108,14 @@ pub struct ManyNotesResponse {
     ),
     tag = "Notes"
 )]
-async fn get_notes(Extension(state): Extension<AppState>) -> AxumResult<Json<ManyNotesResponse>> {
-    let notes = note::Entity::find().all(&state.db).await?;
+async fn get_notes(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+) -> AxumResult<Json<ManyNotesResponse>> {
+    let notes = note::Entity::find()
+        .filter(note::Column::UserId.eq(user.id))
+        .order_by_desc(note::Column::CreatedAt)
+        .all(&state.db)
+        .await?;
     Ok(Json(notes.into()))
 }
