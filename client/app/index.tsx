@@ -32,7 +32,8 @@ export default function IndexScreen() {
     }
 
     return (
-        <ScrollView>
+        <ScrollView
+        >
             {
                 isLoged
                     ?

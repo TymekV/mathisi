@@ -4,8 +4,8 @@ import { paths } from '@/types/api';
 import { article } from '@/types/article';
 import * as SecureStore from 'expo-secure-store';
 import createClient from 'openapi-fetch';
-import React, { useEffect, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 
 
@@ -13,7 +13,7 @@ import { Searchbar } from 'react-native-paper';
 export default function HomeScreen() {
 
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [notes,setNotes] = useState<article[]>([])
+  const [notes, setNotes] = useState<article[]>([])
 
   const $api = createClient<paths>({
     baseUrl: apiBaseUrl,
@@ -22,7 +22,6 @@ export default function HomeScreen() {
   useEffect(() => {
     getArticles()
   }, []);
-
 
   async function getArticles() {
     const token = await SecureStore.getItemAsync("token");
@@ -42,10 +41,18 @@ export default function HomeScreen() {
       setNotes(data.notes);
     }
   }
-
+  
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(() => {
+    getArticles()
+  }, []);
 
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+      }
+    >
 
       <Searchbar
         placeholder="Search"
