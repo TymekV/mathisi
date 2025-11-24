@@ -6,7 +6,6 @@ use http::Uri;
 use serde::{Deserialize, Serialize};
 use strum::{AsRefStr, Display, EnumString, IntoStaticStr};
 use tracing::warn;
-use utoipa::ToSchema;
 
 const ENV_PREFIX: &str = "MATHISI";
 const ENV_SEPARATOR: &str = "__";
@@ -57,9 +56,16 @@ pub struct Redis {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct Ai {
+    pub base_url: String,
+    pub api_key: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Settings {
     pub general: General,
     pub db: Db,
+    pub ai: Ai,
     pub redis: Redis,
 }
 
@@ -129,6 +135,10 @@ impl Settings {
             },
             db: Db {
                 connection_string: "postgres://db:db@localhost/mathisi".to_string(),
+            },
+            ai: Ai {
+                base_url: "https://openrouter.ai/api/v1".to_string(),
+                api_key: "your_api_key".to_string(),
             },
             redis: Redis {
                 connection_string: "redis://localhost:6379".to_string(),
