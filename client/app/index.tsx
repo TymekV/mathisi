@@ -30,10 +30,6 @@ export default function IndexScreen() {
         }
 
     }
-    async function logOut() {
-        await SecureStore.deleteItemAsync('token');
-        setIsLoged(false);
-    }
 
     return (
         <ScrollView>

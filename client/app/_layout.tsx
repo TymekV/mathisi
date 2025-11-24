@@ -52,7 +52,7 @@ export default function RootLayout() {
         const token = await SecureStore.getItemAsync('token');
         setIsLoged(!!token);
         if (!isLoged) {
-            router.navigate('../');
+            router.replace('/');
         }
     }
 
