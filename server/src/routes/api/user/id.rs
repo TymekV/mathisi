@@ -2,7 +2,7 @@ use crate::{
     entity::{note, user},
     errors::{AxumError, AxumResult},
     middlewares::UnauthorizedError,
-    routes::api::notes::{self, ManyNotesResponse},
+    routes::api::notes::{ ManyNotesResponse},
     state::AppState,
 };
 use axum::{Extension, Json, extract::Path};

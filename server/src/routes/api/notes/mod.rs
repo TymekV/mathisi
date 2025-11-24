@@ -32,6 +32,7 @@ impl From<note::Model> for NoteResponse {
             created_at: note.created_at,
             title: note.title,
             content: note.content,
+            public: note.public,
         }
     }
 }
@@ -91,6 +92,7 @@ pub struct NoteResponse {
     pub created_at: DateTime<Utc>,
     pub title: String,
     pub content: String,
+    pub public: bool,
 }
 
 #[derive(Serialize, ToSchema)]
