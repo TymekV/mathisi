@@ -39,6 +39,7 @@ export default function Layout() {
             <Tabs.Screen
                 name="(home)"
                 options={{
+                    headerShown: false,
                     title: 'Home',
                     tabBarIcon: ({ color, focused }) => (
                         <IconHome color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
@@ -48,6 +49,7 @@ export default function Layout() {
             <Tabs.Screen
                 name="(feed)"
                 options={{
+                    headerShown: false,
                     title: 'Feed',
                     tabBarIcon: ({ color, focused }) => (
                         <IconWorld color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
@@ -66,6 +68,7 @@ export default function Layout() {
             <Tabs.Screen
                 name="(bookmarks)"
                 options={{
+                    headerShown: false,
                     title: 'Bookmarks',
                     tabBarIcon: ({ color, focused }) => (
                         <IconBookmark color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />

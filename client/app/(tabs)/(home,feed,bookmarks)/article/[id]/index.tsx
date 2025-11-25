@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -11,6 +11,7 @@ type Note = components['schemas']['NoteResponse'];
 export default function NoteDetailsScreen() {
     const theme = useTheme();
     const router = useRouter();
+    const navigation = useNavigation();
     const params = useLocalSearchParams<{ id?: string | string[] }>();
     const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
     const numericId = rawId ? Number(rawId) : Number.NaN;
@@ -32,13 +33,14 @@ export default function NoteDetailsScreen() {
         [theme, codeFontFamily]
     );
 
+    const createdAt = note?.created_at;
     const createdRelative = useMemo(
-        () => (note ? formatRelativeTime(note.created_at) : ''),
-        [note?.created_at]
+        () => (createdAt ? formatRelativeTime(createdAt) : ''),
+        [createdAt]
     );
     const createdAbsolute = useMemo(
-        () => (note ? formatAbsoluteDate(note.created_at) : ''),
-        [note?.created_at]
+        () => (createdAt ? formatAbsoluteDate(createdAt) : ''),
+        [createdAt]
     );
 
     const handleEditPress = useCallback(() => {
@@ -61,6 +63,12 @@ export default function NoteDetailsScreen() {
                 : [],
         [note]
     );
+
+    React.useEffect(() => {
+        if (note?.title) {
+            navigation.setOptions({ title: note.title });
+        }
+    }, [navigation, note?.title]);
 
     const loaderBackground = { backgroundColor: theme.colors.background };
     const loaderText = { color: theme.colors.onBackground };

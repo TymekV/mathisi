@@ -8,7 +8,7 @@ export const unstable_settings = {
 export default function FeedLayout() {
     return (
         <Stack screenOptions={{ header: (props) => <PaperAppbarHeader {...props} /> }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ title: 'Home' }} />
             <Stack.Screen name="article/[id]" options={{ title: 'Article' }} />
             <Stack.Screen name="quiz/[id]" options={{ title: 'Quiz' }} />
         </Stack>
