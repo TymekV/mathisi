@@ -327,6 +327,8 @@ export interface components {
             user_id: number;
             /** Format: int32 */
             user_vote: number;
+            /** Format: int32 */
+            votes: number;
         };
         NoteUpvoteResponse: {
             /** Format: int32 */
