@@ -2,6 +2,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { CommonActions } from '@react-navigation/native';
 import React from 'react';
 import { Pressable } from 'react-native';
+import { SheetManager } from 'react-native-actions-sheet';
 import { BottomNavigation, TouchableRipple } from 'react-native-paper';
 
 export default function TabBar(props: BottomTabBarProps) {
@@ -11,6 +12,10 @@ export default function TabBar(props: BottomTabBarProps) {
             navigationState={props.state}
             safeAreaInsets={props.insets}
             onTabPress={({ route, preventDefault }) => {
+                console.log({ n: route.name });
+                if (route.name === 'new') {
+                    return SheetManager.show('new');
+                }
                 const event = props.navigation.emit({
                     type: 'tabPress',
                     target: route.key,
@@ -44,8 +49,7 @@ export default function TabBar(props: BottomTabBarProps) {
             }
             getLabelText={({ route }) => {
                 const { options } = props.descriptors[route.key];
-                const label =
-                    options.tabBarLabel || options.title || route.name;
+                const label = options.tabBarLabel || options.title || route.name;
                 return typeof label === 'string' ? label : undefined;
             }}
         />

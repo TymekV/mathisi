@@ -19,66 +19,6 @@ export default function AddNewScreen() {
         setIsWriting(true);
     };
 
-    const pickImage = async () => {
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 1,
-            allowsMultipleSelection: true,
-        });
-
-        if (pickerResult.canceled || !pickerResult.assets?.length) {
-            return;
-        }
-
-        const assets = pickerResult.assets;
-        const ocrEntries: { filename: string; text: string }[] = [];
-        const formData = new FormData();
-
-        for (const asset of assets) {
-            formData.append('files', {
-                uri: asset.uri,
-                name: asset.fileName || `image-${asset.assetId || Date.now()}.jpg`,
-                type: asset.mimeType || 'image/jpeg',
-            } as any);
-
-            try {
-                const text = (await OCR.recognizeText(asset.uri))?.trim() ?? '';
-                ocrEntries.push({ filename: asset.fileName || asset.uri, text });
-            } catch (error) {
-                console.error('OCR failed for asset', asset.uri, error);
-                ocrEntries.push({ filename: asset.fileName || asset.uri, text: '' });
-            }
-        }
-
-        const combinedText = ocrEntries
-            .map((entry) => entry.text)
-            .filter(Boolean)
-            .join('\n\n');
-
-        setWriting(combinedText || '');
-        setIsWriting(true);
-
-        try {
-            const uploadResponse = await uploadFilesMutation.mutateAsync({
-                body: formData as any,
-            });
-
-            await Promise.all(
-                uploadResponse?.files.map((file, index) =>
-                    updateFileMutation.mutateAsync({
-                        params: { path: { id: file.id } },
-                        body: {
-                            filename: file.filename,
-                            ocr: ocrEntries[index]?.text ?? '',
-                        },
-                    })
-                ) ?? []
-            );
-        } catch (error) {
-            console.error('Failed to process files', error);
-        }
-    };
-
     const handleComposerClose = () => {
         setWriting('');
         setIsWriting(false);
@@ -86,30 +26,11 @@ export default function AddNewScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            {isWriting ? (
-                <NoteComposer
-                    initialContent={writing}
-                    onContentChange={setWriting}
-                    onClose={handleComposerClose}
-                />
-            ) : (
-                <View style={styles.centerContainer}>
-                    <FAB
-                        icon={({ size, color }) => <IconPhoto size={size} color={color} />}
-                        label="Add from photo"
-                        style={styles.fab}
-                        onPress={pickImage}
-                    />
-                    <FAB
-                        icon={({ size, color }) => (
-                            <IconFileDescription size={size} color={color} />
-                        )}
-                        label="Start from scratch"
-                        style={styles.fab}
-                        onPress={startScratch}
-                    />
-                </View>
-            )}
+            <NoteComposer
+                initialContent={writing}
+                onContentChange={setWriting}
+                onClose={handleComposerClose}
+            />
         </View>
     );
 }

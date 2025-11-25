@@ -1,6 +1,7 @@
 import React from 'react';
+import { SheetProvider } from 'react-native-actions-sheet';
 import '../global.css';
-
+import '@/lib/sheets';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider } from '@/lib/providers/auth';
 import Query from '@/lib/providers/query';
@@ -52,15 +53,17 @@ export default function RootLayout() {
                     }
                 >
                     <PaperProvider theme={paperTheme}>
-                        <Stack initialRouteName="index">
-                            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                            <Stack.Screen
-                                name="modal"
-                                options={{ presentation: 'modal', title: 'Modal' }}
-                            />
-                        </Stack>
-                        <StatusBar style="auto" />
+                        <SheetProvider>
+                            <Stack initialRouteName="index">
+                                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                                <Stack.Screen
+                                    name="modal"
+                                    options={{ presentation: 'modal', title: 'Modal' }}
+                                />
+                            </Stack>
+                            <StatusBar style="auto" />
+                        </SheetProvider>
                     </PaperProvider>
                 </ThemeProvider>
             </Query>
