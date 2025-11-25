@@ -25,16 +25,15 @@ export default function PaperAppbarHeader(props: PaperAppbarHeaderProps) {
     const canGoBack = Boolean(back);
     const topInset = navigationInsets?.top ?? safeAreaInsets.top ?? 0;
 
-    const headerLeft = options.headerLeft
-        ? options.headerLeft({ tintColor, canGoBack })
-        : canGoBack && (options as any).headerBackVisible !== false
-          ? (
-                <Appbar.BackAction color={tintColor} onPress={navigation.goBack} />
-            )
-          : null;
+    const headerLeft = options.headerLeft ? (
+        options.headerLeft({ tintColor, canGoBack })
+    ) : canGoBack && (options as any).headerBackVisible !== false ? (
+        <Appbar.BackAction color={tintColor} onPress={navigation.goBack} />
+    ) : null;
 
     const headerRight = options.headerRight?.({ tintColor, canGoBack });
-    const mode: 'small' | 'center-aligned' = options.headerTitleAlign === 'center' ? 'center-aligned' : 'small';
+    const mode: 'small' | 'center-aligned' =
+        options.headerTitleAlign === 'center' ? 'center-aligned' : 'small';
     const statusBarHeight = (options as any).headerStatusBarHeight ?? topInset;
     const isTransparent = options.headerTransparent === true;
     const titleStyle = StyleSheet.flatten([
