@@ -1,22 +1,26 @@
 import ArticleFeed from '@/components/article-feed';
 import { apiClient } from '@/lib/providers/api';
+import { FeedSyncProvider } from '@/reducer/forcereload';
+import React from 'react';
+
 
 export default function FeedScreen() {
-
-    // change end point
     const notesQuery = apiClient.useQuery('get', '/api/feed', undefined, {
-        staleTime: 1000 * 60,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: false,
     });
 
-    const items = notesQuery.data?.notes ?? []
+    const { refetch, data, isPending, isRefetching } = notesQuery;
 
     return (
-        <ArticleFeed
-            feed={items}
-            searchText='Search through global notes'
-            isPending={notesQuery.isPending}
-            isRefetching={notesQuery.isRefetching}
-            refetch={notesQuery.refetch}
-             />
+        <FeedSyncProvider>
+            <ArticleFeed
+                feed={data?.notes ?? []}
+                searchText="Search through global notes"
+                isPending={isPending}
+                isRefetching={isRefetching}
+                refetch={refetch}
+            />
+        </FeedSyncProvider>
     );
 }

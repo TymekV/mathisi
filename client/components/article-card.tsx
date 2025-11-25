@@ -8,11 +8,11 @@ import {
     IconCards,
     IconShare2
 } from '@tabler/icons-react-native';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { router, useFocusEffect } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import createClient from 'openapi-fetch';
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { Card, Divider, IconButton, Surface, Text } from 'react-native-paper';
 
@@ -20,49 +20,85 @@ type Note = components['schemas']['NoteResponse'];
 
 type Props = {
     article: Note;
+    onUpdate?: () => void;
 };
 
-// Create a single API client instance
+// Create a single API client instance outside component
 const $api = createClient<paths>({
     baseUrl: apiBaseUrl,
 });
 
-function ArticleCardComponent({ article }: Props) {
+function ArticleCardComponent({ article, onUpdate }: Props) {
     const queryClient = useQueryClient();
 
-    const [vote, setVote] = useState<-1 | 0 | 1>(() => {
-        if (article.user_vote === -1) return -1;
-        if (article.user_vote === 1) return 1;
-        return 0;
+    // Use React Query for fetching note data - single source of truth
+    const { data: note, refetch } = useQuery({
+        queryKey: ['note', article.id],
+        queryFn: async () => {
+            const token = await SecureStore.getItemAsync('token');
+            const { data, error } = await $api.GET('/api/notes/{id}', {
+                params: {
+                    path: { id: article.id },
+                },
+                headers: {
+                    Authorization: token ?? '',
+                },
+            });
+
+            if (error) {
+                throw error;
+            }
+            return data;
+        },
+        initialData: article, // Use prop as initial data
+        staleTime: 0, // Always consider data stale
     });
-    const [bookmarked, setBookmarked] = useState(article.user_bookmark);
 
-    const createdLabel = useMemo(() => timeAgo(article.created_at), [article.created_at]);
-    const excerpt = useMemo(() => article.content.slice(0, 180).trim(), [article.content]);
+    // Derived state from the query data
+    const vote = note?.user_vote ?? 0;
+    const bookmarked = note?.user_bookmark ?? false;
 
-    const handleNavigate = () => {
+    const createdLabel = useMemo(() => timeAgo(note?.created_at ?? article.created_at), [note?.created_at, article.created_at]);
+    const excerpt = useMemo(() => (note?.content ?? article.content).slice(0, 180).trim(), [note?.content, article.content]);
+    const title = note?.title ?? article.title;
+
+    // Refetch on screen focus - wrapped in useCallback to prevent infinite loop
+    useFocusEffect(
+        useCallback(() => {
+            refetch();
+        }, [refetch])
+    );
+
+    const handleNavigate = useCallback(() => {
         router.push({
             pathname: '/article/[id]',
             params: { id: String(article.id) },
         });
-    };
+    }, [article.id]);
 
-    const handleQuizNavigate = () => {
+    const handleQuizNavigate = useCallback(() => {
         router.push({
             pathname: '/quiz/[id]',
             params: { id: String(article.id) },
         });
-    };
+    }, [article.id]);
 
-    const handleShare = async () => {
+    const handleShare = useCallback(async () => {
         try {
             await Share.share({
-                message: `${article.title}\n\n${excerpt}`,
+                message: `${title}\n\n${excerpt}`,
             });
         } catch (error) {
             console.error('Share failed', error);
         }
-    };
+    }, [title, excerpt]);
+
+    // Helper to invalidate queries and notify parent
+    const invalidateAndUpdate = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ['notes'] });
+        queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        onUpdate?.();
+    }, [queryClient, article.id, onUpdate]);
 
     // --- Mutations ---
 
@@ -79,19 +115,18 @@ function ArticleCardComponent({ article }: Props) {
             });
 
             if (error) {
-                // you can throw a more specific error depending on openapi-fetch's error type
                 throw error;
             }
 
             return data;
         },
-        onSuccess: () => {
-            // Flip bookmark state ONLY after successful response
-            setBookmarked(prev => !prev);
-
-            // Optional: invalidate queries that contain this note
-            queryClient.invalidateQueries({ queryKey: ['notes'] });
-            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        onSuccess: (data) => {
+            // Optimistically update the cache
+            queryClient.setQueryData(['note', article.id], (old: Note | undefined) => {
+                if (!old) return old;
+                return { ...old, user_bookmark: data.marked };
+            });
+            invalidateAndUpdate();
         },
         onError: (error) => {
             console.error('Bookmark failed', error);
@@ -116,12 +151,13 @@ function ArticleCardComponent({ article }: Props) {
 
             return data;
         },
-        onSuccess: () => {
-            // Toggle upvote only on success
-            setVote(current => (current === 1 ? 0 : 1));
-
-            queryClient.invalidateQueries({ queryKey: ['notes'] });
-            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        onSuccess: (data) => {
+            // Update cache with new vote value
+            queryClient.setQueryData(['note', article.id], (old: Note | undefined) => {
+                if (!old) return old;
+                return { ...old, user_vote: data.is_upvoted };
+            });
+            invalidateAndUpdate();
         },
         onError: (error) => {
             console.error('Upvote failed', error);
@@ -143,15 +179,16 @@ function ArticleCardComponent({ article }: Props) {
             if (error) {
                 throw error;
             }
-
             return data;
         },
-        onSuccess: () => {
-            // Toggle downvote only on success
-            setVote(current => (current === -1 ? 0 : -1));
-
-            queryClient.invalidateQueries({ queryKey: ['notes'] });
-            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        onSuccess: (data) => {
+            // Update cache with new vote value
+            const newVote = (data as any).is_upvoted === -1 ? -1 : 0;
+            queryClient.setQueryData(['note', article.id], (old: Note | undefined) => {
+                if (!old) return old;
+                return { ...old, user_vote: newVote };
+            });
+            invalidateAndUpdate();
         },
         onError: (error) => {
             console.error('Downvote failed', error);
@@ -166,11 +203,11 @@ function ArticleCardComponent({ article }: Props) {
                 <Card.Content style={styles.header}>
                     <Surface style={styles.avatar} elevation={1}>
                         <Text variant="titleMedium">
-                            {article.title[0]?.toUpperCase()}
+                            {title[0]?.toUpperCase()}
                         </Text>
                     </Surface>
                     <View style={styles.meta}>
-                        <Text variant="titleMedium">{article.title}</Text>
+                        <Text variant="titleMedium">{title}</Text>
                         <Text variant="bodySmall" style={styles.metaMuted}>
                             Updated {createdLabel}
                         </Text>

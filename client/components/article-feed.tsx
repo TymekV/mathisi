@@ -12,9 +12,10 @@ interface Props {
     isRefetching: boolean;
     refetch: () => void;
     searchText: string;
+    onUpdate?: () => void;
 }
 
-export default function ArticleFeed({ feed, isPending, isRefetching, refetch, searchText }: Props) {
+export default function ArticleFeed({ feed, isPending, isRefetching, refetch, searchText, onUpdate }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const theme = useTheme();
 
@@ -34,11 +35,16 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
     const renderItem = useCallback<ListRenderItem<Note>>(
         ({ item }) => (
             <View style={styles.cardContainer}>
-                <ArticleCard article={item} />
+                <ArticleCard article={item} onUpdate={onUpdate} key={isRefetching ? 1 : 0 + item.id} />
             </View>
         ),
         []
     );
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+        setSearchQuery('');
+    }, [refetch]);
 
     const listHeader = (
         <Searchbar
@@ -59,26 +65,24 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
 
     return (
         <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
-            <FlatList<Note>
-                data={filteredNotes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
-                ListHeaderComponent={listHeader}
-                contentContainerStyle={styles.listContent}
-                refreshing={isRefetching}
-                onRefresh={() => {
-                    refetch();
-                    setSearchQuery('');
-                }}
-                ListEmptyComponent={() => (
-                    <View style={styles.emptyState}>
-                        <Text variant="titleMedium">No notes yet</Text>
-                        <Text variant="bodyMedium" style={styles.emptyStateDescription}>
-                            Start by creating your first note.
-                        </Text>
-                    </View>
-                )}
-            />
+
+                <FlatList<Note>
+                    data={filteredNotes}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={renderItem}
+                    ListHeaderComponent={listHeader}
+                    contentContainerStyle={styles.listContent}
+                    refreshing={isRefetching}
+                    onRefresh={handleRefresh}
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyState}>
+                            <Text variant="titleMedium">No notes yet</Text>
+                            <Text variant="bodyMedium" style={styles.emptyStateDescription}>
+                                Start by creating your first note.
+                            </Text>
+                        </View>
+                    )}
+                />
         </View>
     );
 }
