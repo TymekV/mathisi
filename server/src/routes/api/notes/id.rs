@@ -18,6 +18,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .routes(routes!(get_note))
         .routes(routes!(edit_note))
         .routes(routes!(bookmark_note))
+        .routes(routes!(is_bookmark_on_note))
 }
 
 /// Get single note
@@ -107,9 +108,99 @@ async fn edit_note(
     Ok(Json(note.to_response(&state.db).await?))
 }
 
+#[utoipa::path(
+    method(get),
+    path = "/bookmark",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteBookmarkResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn is_bookmark_on_note(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteBookmarkResponse>> {
+
+    // Ensure note exists
+    note::Entity::find_by_id(id)
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
+
+    // Check if a save exists
+    let is_bookmarked = save::Entity::find()
+        .filter(save::Column::UserId.eq(user.id))
+        .filter(save::Column::NoteId.eq(id))
+        .one(&state.db)
+        .await?
+        .is_some();
+
+    Ok(Json(NoteBookmarkResponse { 
+        success: true, 
+        marked: is_bookmarked 
+    }))
+}
+
+
 /// Bookmark note (toggle)
 #[utoipa::path(
     method(post),
+    path = "/bookmark",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteBookmarkResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn bookmark_note(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteBookmarkResponse>> {
+
+
+    let mut created :  bool = false;
+    // Ensure note exists
+    let note = note::Entity::find_by_id(id)
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
+
+    // Check if a save already exists
+    if let Some(existing_save) = save::Entity::find()
+        .filter(save::Column::UserId.eq(user.id))
+        .filter(save::Column::NoteId.eq(id))
+        .one(&state.db)
+        .await?
+    {
+        // Bookmark exists → remove it
+        existing_save.delete(&state.db).await?;
+    } else {
+        // Bookmark does NOT exist → create it
+        let new_save = save::ActiveModel {
+            user_id: Set(user.id),
+            note_id: Set(id),
+            ..Default::default()
+        };
+        new_save.insert(&state.db).await?;
+        created = true;
+    }
+
+    // Return updated note
+    Ok(Json(NoteBookmarkResponse { success: true, marked : created}))
+}
+
+/// Bookmark note (toggle)
+#[utoipa::path(
+    method(get),
     path = "/bookmark",
     params(
         ("id" = i32, Path, description = "Note ID")
@@ -120,7 +211,7 @@ async fn edit_note(
     ),
     tag = "Notes"
 )]
-async fn bookmark_note(
+async fn note_saves(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
