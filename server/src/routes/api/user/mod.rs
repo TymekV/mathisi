@@ -31,6 +31,7 @@ impl From<user::Model> for UserResponse {
             username: user.username,
             email: user.email,
             created_at: user.created_at,
+            has_profile_picture: user.profile_picture.is_some(),
         }
     }
 }
