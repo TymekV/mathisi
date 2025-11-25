@@ -74,6 +74,25 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
             }}
         >
             <View className="gap-1">
+                <View className="items-center mb-2">
+                    <SegmentedButtons
+                        value={mode}
+                        onValueChange={(next) => setMode(next as 'edit' | 'preview')}
+                        style={{ maxWidth: 220 }}
+                        buttons={[
+                            {
+                                value: 'edit',
+                                label: 'Edit',
+                                icon: ({ size, color }) => <IconPencil size={size} color={color} />,
+                            },
+                            {
+                                value: 'preview',
+                                label: 'Preview',
+                                icon: ({ size, color }) => <IconEye size={size} color={color} />,
+                            },
+                        ]}
+                    />
+                </View>
                 <Controller
                     control={control}
                     name="title"
