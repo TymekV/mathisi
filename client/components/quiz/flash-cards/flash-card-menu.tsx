@@ -14,6 +14,14 @@ const example = [
     {
         front: "front",
         back: "back",
+    },
+    {
+        front: "1",
+        back: "2",
+    },
+    {
+        front: "front",
+        back: "back",
     }
 ]
 
@@ -24,24 +32,31 @@ interface Props {
 export default function FlashCardMenu({ onBack }: Props) {
 
 
-    const [index, useIndex] = useState<number>(0);
+    const [index, setIndex] = useState<number>(0);
 
     function prev() {
         if (index - 1 < 0) {
-            useIndex(example.length - 1)
+            setIndex(example.length - 1)
         }
         else {
-            useIndex(index - 1)
+            setIndex(index - 1)
         }
 
     }
     function next() {
         if (index + 1 > example.length - 1) {
-            useIndex(0)
+            setIndex(0)
         }
         else {
-            useIndex(index + 1)
+            setIndex(index + 1)
         }
+    }
+
+    function getRandomInt(max:number) {
+        return Math.floor(Math.random() * max);
+    }
+    function random() {
+        setIndex(getRandomInt(example.length))
     }
 
     return (
@@ -59,7 +74,7 @@ export default function FlashCardMenu({ onBack }: Props) {
                     <Button mode="outlined" onPress={prev}>
                         <Text>Prev</Text>
                     </Button>
-                    <Button mode="outlined" >
+                    <Button mode="outlined" onPress={random}>
                         <Text>Random</Text>
                     </Button>
                     <Button mode="outlined" onPress={next}>
