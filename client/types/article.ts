@@ -9,7 +9,8 @@ export interface article {
     desc?: string,
     author?: string,
     upvotes?: number,
-    
+    public: boolean,
+    saves: number,
     time_ago?: string,
     created_at: string
     upvote?: number,

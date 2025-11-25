@@ -7,15 +7,15 @@ import { ActivityIndicator, Searchbar, Text } from 'react-native-paper';
 
 type Note = components['schemas']['NoteResponse'];
 
-interface Props  {
-    feed : article[],
-    isPending : boolean,
+interface Props {
+    feed: article[],
+    isPending: boolean,
     isRefetching: boolean,
-    refetch : () => void, 
-    searchText : string,
+    refetch: () => void,
+    searchText: string,
 }
 
-export default function ArticleFeed({ feed,isPending,isRefetching,refetch,searchText }: Props) {
+export default function ArticleFeed({ feed, isPending, isRefetching, refetch, searchText }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
 
 
@@ -30,7 +30,7 @@ export default function ArticleFeed({ feed,isPending,isRefetching,refetch,search
                 note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 note.content.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery]);
+    }, [searchQuery, feed]);
 
     const renderItem = useCallback<ListRenderItem<Note>>(
         ({ item }) => (
@@ -59,7 +59,7 @@ export default function ArticleFeed({ feed,isPending,isRefetching,refetch,search
     }
 
     return (
-        <FlatList<Note>
+        <FlatList
             data={filteredNotes}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderItem}
@@ -67,7 +67,7 @@ export default function ArticleFeed({ feed,isPending,isRefetching,refetch,search
             contentContainerStyle={styles.listContent}
             refreshing={isRefetching}
             onRefresh={() => {
-                refetch
+                refetch()
                 setSearchQuery("")
             }}
             ListEmptyComponent={() => (
