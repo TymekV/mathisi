@@ -131,14 +131,16 @@ pub async fn create_ai_note(
         ..Default::default()
     };
 
-    model.insert(&state.db).await?;
+    let inserted = model.insert(&state.db).await?;
 
     Ok(Json(AiNoteCreateResponse {
         content: ai_content.to_owned(),
+        id: inserted.id,
     }))
 }
 
 #[derive(Serialize, ToSchema)]
 pub struct AiNoteCreateResponse {
     pub content: String,
+    pub id: i32,
 }
