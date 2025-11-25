@@ -1,4 +1,4 @@
-import { IconArrowRight, IconCheck, IconQuestionMark, IconTrophy, IconX } from "@tabler/icons-react-native";
+import { IconArrowRight, IconCheck, IconChevronLeft, IconQuestionMark, IconRotateClockwise, IconTrophy, IconX } from "@tabler/icons-react-native";
 import { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { FAB, ProgressBar, Surface, Text, useTheme } from "react-native-paper";
@@ -21,11 +21,15 @@ const example = [
     }
 ];
 
+interface Props {
+    onBack: () => void
+}
+
 type AnswerState = 'default' | 'correct' | 'incorrect' | 'revealed';
 
-export default function QuestionMenu() {
+export default function QuestionMenu({onBack: onBack} : Props) {
     const theme = useTheme();
-    
+
     const [question, setQuestion] = useState<number>(0);
     const [score, setScore] = useState<number>(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -95,12 +99,12 @@ export default function QuestionMenu() {
 
     const handleAnswer = (index: number) => {
         if (isAnswered) return;
-        
+
         setSelectedAnswer(index);
         setIsAnswered(true);
-        
+
         const isCorrect = index === example[question].correct_answer;
-        
+
         // Update answer states
         const newStates: AnswerState[] = example[question].answers.map((_, i) => {
             if (i === example[question].correct_answer) return 'correct';
@@ -108,7 +112,7 @@ export default function QuestionMenu() {
             return 'revealed';
         });
         setAnswerStates(newStates);
-        
+
         if (isCorrect) {
             bounceAnimation();
             pulseScoreAnimation();
@@ -136,7 +140,7 @@ export default function QuestionMenu() {
             setSelectedAnswer(null);
             setAnswerStates(example[question + 1].answers.map(() => 'default'));
             setIsAnswered(false);
-            
+
             // Fade in animation
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -191,13 +195,13 @@ export default function QuestionMenu() {
     const getButtonIcon = (state: AnswerState) => {
         switch (state) {
             case 'correct':
-                return ({ size, color }: { size: number; color: string }) => 
+                return ({ size, color }: { size: number; color: string }) =>
                     <IconCheck size={size} color="#fff" />;
             case 'incorrect':
-                return ({ size, color }: { size: number; color: string }) => 
+                return ({ size, color }: { size: number; color: string }) =>
                     <IconX size={size} color="#fff" />;
             default:
-                return ({ size, color }: { size: number; color: string }) => 
+                return ({ size, color }: { size: number; color: string }) =>
                     <IconQuestionMark size={size} color={color} />;
         }
     };
@@ -218,9 +222,14 @@ export default function QuestionMenu() {
                     </Text>
                     <FAB
                         style={styles.restartButton}
-                        icon="restart"
+                        icon={({ size, color }) => <IconRotateClockwise size={size} color={color} />}
                         label="Play Again"
                         onPress={restartQuiz}
+                    />
+                    <FAB
+                        icon={({ size, color }) => <IconChevronLeft size={size} color={color} />}
+                        label="Go Back"
+                        onPress={() => onBack()}
                     />
                 </Surface>
             </View>
@@ -236,7 +245,7 @@ export default function QuestionMenu() {
                         <Text variant="titleMedium">Score: {score}</Text>
                     </Surface>
                 </Animated.View>
-                
+
                 {streak > 1 && (
                     <Surface style={styles.streakBadge} elevation={2}>
                         <Text variant="titleMedium">🔥 {streak} Streak!</Text>
@@ -278,10 +287,10 @@ export default function QuestionMenu() {
             </Animated.View>
 
             {/* Answer Options */}
-            <Animated.View 
+            <Animated.View
                 style={[
                     styles.answersContainer,
-                    { 
+                    {
                         opacity: fadeAnim,
                         transform: [{ translateX: shakeAnim }]
                     }

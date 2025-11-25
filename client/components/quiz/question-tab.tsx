@@ -44,17 +44,12 @@ export default function QuestionTab() {
             )
         } else if (selection == 1) {
             return (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-                    <FlashCardMenu onBack={GoBack} />
-                </View>
+                <FlashCardMenu onBack={GoBack} />
             )
-
         }
         else {
             return (
-
-                <QuestionMenu />
-
+                <QuestionMenu onBack={GoBack} />
             )
         }
     }

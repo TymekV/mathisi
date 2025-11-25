@@ -60,7 +60,7 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
                     <Card style={styles.card}>
                         <Card.Content style={styles.cardContent}>
                             <Text style={styles.hint}>Tap to flip</Text>
-                            <Text style={styles.label}>Answer</Text>
+                            <Text style={styles.label}>Question</Text>
                             <Text>{label_frontsize}</Text>
                         </Card.Content>
                     </Card>
