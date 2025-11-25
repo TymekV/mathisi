@@ -3,7 +3,6 @@ import { apiClient } from '@/lib/providers/api';
 import { FeedSyncProvider } from '@/reducer/forcereload';
 
 export default function HomeScreen() {
-    // change end point
     const notesQuery = apiClient.useQuery('get', '/api/notes', undefined, {
         staleTime: 1000 * 1,
         refetchOnWindowFocus: true,
