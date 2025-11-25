@@ -3,7 +3,7 @@ import { apiClient } from '@/lib/providers/api';
 
 export default function BookMarkScreen() {
     // change end point
-    const notesQuery = apiClient.useQuery('get', '/api/notes', undefined, {
+    const notesQuery = apiClient.useQuery('get', '/api/notes/bookmark', undefined, {
         staleTime: 1000 * 60,
     });
 

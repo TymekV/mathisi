@@ -6,3 +6,4 @@ pub mod save;
 pub mod tag;
 pub mod token;
 pub mod user;
+pub mod upvote;

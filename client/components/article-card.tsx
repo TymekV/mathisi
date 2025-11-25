@@ -1,15 +1,17 @@
-import type { components } from '@/types/api';
+import { apiBaseUrl } from '@/constants/apiBaseUrl';
+import type { components, paths } from '@/types/api';
 import {
     IconArrowBigDownLinesFilled,
     IconArrowBigUpLineFilled,
     IconBookmark,
     IconBookmarkFilled,
     IconCards,
-    IconCardsFilled,
-    IconShare,
-    IconShare2,
+    IconShare2
 } from '@tabler/icons-react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import createClient from 'openapi-fetch';
 import React, { memo, useMemo, useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { Card, Divider, IconButton, Surface, Text } from 'react-native-paper';
@@ -20,9 +22,21 @@ type Props = {
     article: Note;
 };
 
+// Create a single API client instance
+const $api = createClient<paths>({
+    baseUrl: apiBaseUrl,
+});
+
 function ArticleCardComponent({ article }: Props) {
-    const [vote, setVote] = useState<-1 | 0 | 1>(0);
-    const [bookmarked, setBookmarked] = useState(false);
+    const queryClient = useQueryClient();
+
+    const [vote, setVote] = useState<-1 | 0 | 1>(() => {
+        if (article.user_vote === -1) return -1;
+        if (article.user_vote === 1) return 1;
+        return 0;
+    });
+    const [bookmarked, setBookmarked] = useState(article.user_bookmark);
+
     const createdLabel = useMemo(() => timeAgo(article.created_at), [article.created_at]);
     const excerpt = useMemo(() => article.content.slice(0, 180).trim(), [article.content]);
 
@@ -32,6 +46,7 @@ function ArticleCardComponent({ article }: Props) {
             params: { id: String(article.id) },
         });
     };
+
     const handleQuizNavigate = () => {
         router.push({
             pathname: '/quiz/[id]',
@@ -49,12 +64,110 @@ function ArticleCardComponent({ article }: Props) {
         }
     };
 
+    // --- Mutations ---
+
+    const bookmarkMutation = useMutation({
+        mutationFn: async () => {
+            const token = await SecureStore.getItemAsync('token');
+            const { data, error } = await $api.POST('/api/notes/{id}/bookmark', {
+                params: {
+                    path: { id: article.id },
+                },
+                headers: {
+                    Authorization: token ?? '',
+                },
+            });
+
+            if (error) {
+                // you can throw a more specific error depending on openapi-fetch's error type
+                throw error;
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            // Flip bookmark state ONLY after successful response
+            setBookmarked(prev => !prev);
+
+            // Optional: invalidate queries that contain this note
+            queryClient.invalidateQueries({ queryKey: ['notes'] });
+            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        },
+        onError: (error) => {
+            console.error('Bookmark failed', error);
+        },
+    });
+
+    const upvoteMutation = useMutation({
+        mutationFn: async () => {
+            const token = await SecureStore.getItemAsync('token');
+            const { data, error } = await $api.POST('/api/notes/{id}/upvote', {
+                params: {
+                    path: { id: article.id },
+                },
+                headers: {
+                    Authorization: token ?? '',
+                },
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            // Toggle upvote only on success
+            setVote(current => (current === 1 ? 0 : 1));
+
+            queryClient.invalidateQueries({ queryKey: ['notes'] });
+            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        },
+        onError: (error) => {
+            console.error('Upvote failed', error);
+        },
+    });
+
+    const downvoteMutation = useMutation({
+        mutationFn: async () => {
+            const token = await SecureStore.getItemAsync('token');
+            const { data, error } = await $api.POST('/api/notes/{id}/downvote', {
+                params: {
+                    path: { id: article.id },
+                },
+                headers: {
+                    Authorization: token ?? '',
+                },
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            return data;
+        },
+        onSuccess: () => {
+            // Toggle downvote only on success
+            setVote(current => (current === -1 ? 0 : -1));
+
+            queryClient.invalidateQueries({ queryKey: ['notes'] });
+            queryClient.invalidateQueries({ queryKey: ['note', article.id] });
+        },
+        onError: (error) => {
+            console.error('Downvote failed', error);
+        },
+    });
+
+    const anyVoteLoading = upvoteMutation.isPending || downvoteMutation.isPending;
+
     return (
         <Card mode="elevated" style={styles.card}>
             <Pressable onPress={handleNavigate}>
                 <Card.Content style={styles.header}>
                     <Surface style={styles.avatar} elevation={1}>
-                        <Text variant="titleMedium">{article.title[0]?.toUpperCase()}</Text>
+                        <Text variant="titleMedium">
+                            {article.title[0]?.toUpperCase()}
+                        </Text>
                     </Surface>
                     <View style={styles.meta}>
                         <Text variant="titleMedium">{article.title}</Text>
@@ -78,7 +191,8 @@ function ArticleCardComponent({ article }: Props) {
                             size={size}
                         />
                     )}
-                    onPress={() => setVote((current) => (current === 1 ? 0 : 1))}
+                    onPress={() => upvoteMutation.mutate()}
+                    disabled={anyVoteLoading}
                 />
                 <IconButton
                     icon={({ color, size }) => (
@@ -87,11 +201,12 @@ function ArticleCardComponent({ article }: Props) {
                             size={size}
                         />
                     )}
-                    onPress={() => setVote((current) => (current === -1 ? 0 : -1))}
+                    onPress={() => downvoteMutation.mutate()}
+                    disabled={anyVoteLoading}
                 />
                 <IconButton
                     icon={({ color, size }) => <IconCards color={color} size={size} />}
-                    onPress={() => handleQuizNavigate()}
+                    onPress={handleQuizNavigate}
                 />
                 <IconButton
                     icon={({ color, size }) =>
@@ -101,7 +216,8 @@ function ArticleCardComponent({ article }: Props) {
                             <IconBookmark color={color} size={size} />
                         )
                     }
-                    onPress={() => setBookmarked((prev) => !prev)}
+                    onPress={() => bookmarkMutation.mutate()}
+                    disabled={bookmarkMutation.isPending}
                 />
                 <IconButton
                     icon={({ color, size }) => <IconShare2 size={size} color={color} />}

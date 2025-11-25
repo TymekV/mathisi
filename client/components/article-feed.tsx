@@ -1,6 +1,5 @@
 import ArticleCard from '@/components/article-card';
 import type { components } from '@/types/api';
-import { article } from '@/types/article';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Searchbar, Text, useTheme } from 'react-native-paper';
@@ -8,7 +7,7 @@ import { ActivityIndicator, Searchbar, Text, useTheme } from 'react-native-paper
 type Note = components['schemas']['NoteResponse'];
 
 interface Props {
-    feed: article[];
+    feed: Note[];
     isPending: boolean;
     isRefetching: boolean;
     refetch: () => void;
@@ -60,7 +59,7 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
 
     return (
         <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
-            <FlatList
+            <FlatList<Note>
                 data={filteredNotes}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}

@@ -11,6 +11,7 @@ import {
     DefaultTheme as NavLightTheme,
     ThemeProvider,
 } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -20,6 +21,7 @@ import {
     PaperProvider,
 } from 'react-native-paper';
 import 'react-native-reanimated';
+import '../global.css';
 
 export const unstable_settings = {
     initialRouteName: 'index',
@@ -42,31 +44,35 @@ export default function RootLayout() {
         materialLight: MD3LightTheme,
     });
 
+    const queryClient = new QueryClient();
+
     return (
         <AuthProvider>
-            <Query>
-                <ThemeProvider
-                    value={
-                        colorScheme === 'light'
-                            ? { ...LightTheme, fonts: NavLightTheme.fonts }
-                            : { ...DarkTheme, fonts: NavDarkTheme.fonts }
-                    }
-                >
-                    <PaperProvider theme={paperTheme}>
-                        <SheetProvider>
-                            <Stack initialRouteName="index">
-                                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                                <Stack.Screen
-                                    name="modal"
-                                    options={{ presentation: 'modal', title: 'Modal' }}
-                                />
-                            </Stack>
-                            <StatusBar style="auto" />
-                        </SheetProvider>
-                    </PaperProvider>
-                </ThemeProvider>
-            </Query>
+            <QueryClientProvider client={queryClient}>
+                <Query>
+                    <ThemeProvider
+                        value={
+                            colorScheme === 'light'
+                                ? { ...LightTheme, fonts: NavLightTheme.fonts }
+                                : { ...DarkTheme, fonts: NavDarkTheme.fonts }
+                        }
+                    >
+                        <PaperProvider theme={paperTheme}>
+                            <SheetProvider>
+                                <Stack initialRouteName="index">
+                                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                                    <Stack.Screen
+                                        name="modal"
+                                        options={{ presentation: 'modal', title: 'Modal' }}
+                                    />
+                                </Stack>
+                                <StatusBar style="auto" />
+                            </SheetProvider>
+                        </PaperProvider>
+                    </ThemeProvider>
+                </Query>
+            </QueryClientProvider>
         </AuthProvider>
     );
 }
