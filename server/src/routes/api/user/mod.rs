@@ -22,6 +22,7 @@ pub struct UserResponse {
 
     pub email: String,
     pub created_at: NaiveDateTime,
+    pub has_profile_picture: bool,
 }
 
 impl From<user::Model> for UserResponse {
