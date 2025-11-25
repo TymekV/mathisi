@@ -24,6 +24,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .routes(routes!(upvote_note))
         .routes(routes!(downvote_note))
         .routes(routes!(get_note_votes))
+        .routes(routes!(get_note_vote))
 }
 
 /// Get single note
@@ -345,5 +346,43 @@ async fn get_note_votes(
     Ok(Json(NoteVotesResponse {
         success: true,
         votes: votes,
+    }))
+}
+
+#[utoipa::path(
+    method(get),
+    path = "/vote",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteVotesResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn get_note_vote(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteUpvoteResponse>> {
+
+    let note = note::Entity::find_by_id(id)
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
+
+        let votes = upvote::Entity::find()
+        .filter(upvote::Column::NoteId.eq(id))
+        .filter(upvote::Column::UserId.eq(user.id))
+        .one(&state.db)
+        .await?
+        .into_iter()
+        .map(|v| if v.is_upvote { 1 } else { -1 })
+        .sum::<i32>();
+
+    Ok(Json(NoteUpvoteResponse {
+        success: true,
+        is_upvoted: votes,
     }))
 }
