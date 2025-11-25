@@ -27,5 +27,7 @@ async fn get_feed(Extension(state): Extension<AppState>) -> AxumResult<Json<Many
         .order_by_desc(note::Column::CreatedAt)
         .all(&state.db)
         .await?;
-    Ok(Json(notes.into()))
+    Ok(Json(
+        ManyNotesResponse::response_from_array(notes, &state.db).await?,
+    ))
 }

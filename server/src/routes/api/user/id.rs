@@ -2,13 +2,13 @@ use crate::{
     entity::{note, user},
     errors::{AxumError, AxumResult},
     middlewares::UnauthorizedError,
-    routes::api::notes::{ ManyNotesResponse},
+    routes::api::notes::ManyNotesResponse,
     state::AppState,
 };
 use axum::{Extension, Json, extract::Path};
 use chrono::NaiveDateTime;
 use color_eyre::eyre::eyre;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -22,9 +22,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
 #[derive(Serialize, ToSchema)]
 pub struct PublicUserResponse {
     pub id: i32,
-
     pub username: String,
-
     pub created_at: NaiveDateTime,
 }
 
@@ -50,7 +48,6 @@ impl From<user::Model> for PublicUserResponse {
     ),
     tag = "Notes"
 )]
-
 async fn get_user(
     Extension(state): Extension<AppState>,
     Path(id): Path<i32>,
@@ -63,7 +60,7 @@ async fn get_user(
     Ok(Json(user.into()))
 }
 
-/// Get user public info
+/// Get user public notes
 #[utoipa::path(
     method(get),
     path = "/notes",
@@ -82,8 +79,12 @@ async fn get_user_notes(
 ) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find()
         .filter(note::Column::UserId.eq(id))
+        .filter(note::Column::Public.eq(true))
+        .order_by_desc(note::Column::CreatedAt)
         .all(&state.db)
         .await?;
 
-    Ok(Json(notes.into()))
+    Ok(Json(
+        ManyNotesResponse::response_from_array(notes, &state.db).await?,
+    ))
 }
