@@ -8,6 +8,7 @@ type User = components['schemas']['UserResponse'];
 
 function UserProfileComponent() {
     const userQuery = apiClient.useQuery('get', '/api/user');
+    
 
     const joinedLabel = useMemo(() => {
         if (!userQuery.data?.created_at) {
@@ -38,6 +39,11 @@ function UserProfileComponent() {
             </View>
         );
     }
+
+    if(user.has_profile_picture){
+
+    }
+
 
     return (
         <Surface style={styles.container} elevation={1}>
