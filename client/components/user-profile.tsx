@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
-import { memo, use, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Avatar, Surface, Text } from 'react-native-paper';
 
@@ -40,7 +40,7 @@ function UserProfileComponent() {
         );
     }
 
-    if(user.){
+    if(user.has_profile_picture){
 
     }
 
