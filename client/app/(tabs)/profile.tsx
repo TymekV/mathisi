@@ -20,6 +20,7 @@ export default function ProfileScreen() {
             style={{ flex: 1, backgroundColor: theme.colors.background }}
         >
             <UserProfile />
+
             <Button mode="outlined" onPress={handleLogout} style={{ marginTop: 20 }}>
                 Log Out
             </Button>

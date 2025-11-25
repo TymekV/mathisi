@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
-import { memo, useMemo } from 'react';
+import { memo, use, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Avatar, Surface, Text } from 'react-native-paper';
 
@@ -8,6 +8,7 @@ type User = components['schemas']['UserResponse'];
 
 function UserProfileComponent() {
     const userQuery = apiClient.useQuery('get', '/api/user');
+    
 
     const joinedLabel = useMemo(() => {
         if (!userQuery.data?.created_at) {
@@ -38,6 +39,11 @@ function UserProfileComponent() {
             </View>
         );
     }
+
+    if(user.){
+
+    }
+
 
     return (
         <Surface style={styles.container} elevation={1}>

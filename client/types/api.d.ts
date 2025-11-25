@@ -423,6 +423,7 @@ export interface components {
             /** Format: date-time */
             created_at: string;
             email: string;
+            has_profile_picture: boolean;
             /** Format: int32 */
             id: number;
             username: string;
