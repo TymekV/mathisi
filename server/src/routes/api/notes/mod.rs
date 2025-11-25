@@ -23,6 +23,7 @@ use crate::{
 pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_note, get_notes))
+        .routes(routes!(get_bookmarked_notes))
         .nest("/{id}", id::routes())
 }
 
@@ -157,3 +158,35 @@ async fn get_notes(
         ManyNotesResponse::response_from_array(notes, &state.db).await?,
     ))
 }
+/// Get all your bookmarked notes
+#[utoipa::path(
+    method(get),
+    path = "/bookmark",
+    responses(
+        (status = OK, description = "Success", body = ManyNotesResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn get_bookmarked_notes(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+) -> AxumResult<Json<Vec<note::Model>>> {
+    // Get all saves for this user
+    let saves = save::Entity::find()
+        .filter(save::Column::UserId.eq(user.id))
+        .all(&state.db)
+        .await?;
+
+    // Collect note IDs
+    let note_ids: Vec<i32> = saves.into_iter().map(|s| s.note_id).collect();
+
+    // Fetch all notes in a single query
+    let notes = note::Entity::find()
+        .filter(note::Column::Id.is_in(note_ids))
+        .all(&state.db)
+        .await?;
+
+    Ok(Json(notes))
+}
+
