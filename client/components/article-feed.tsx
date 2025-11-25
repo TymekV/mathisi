@@ -30,7 +30,7 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
                 note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 note.content.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery]);
+    }, [searchQuery, feed]);
 
     const renderItem = useCallback<ListRenderItem<Note>>(
         ({ item }) => (
@@ -60,7 +60,7 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
 
     return (
         <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>
-            <FlatList<Note>
+            <FlatList
                 data={filteredNotes}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
@@ -68,7 +68,7 @@ export default function ArticleFeed({ feed, isPending, isRefetching, refetch, se
                 contentContainerStyle={styles.listContent}
                 refreshing={isRefetching}
                 onRefresh={() => {
-                    refetch;
+                    refetch();
                     setSearchQuery('');
                 }}
                 ListEmptyComponent={() => (

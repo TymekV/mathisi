@@ -17,6 +17,6 @@ export default function BookMarkScreen() {
             isPending={notesQuery.isPending}
             isRefetching={notesQuery.isRefetching}
             refetch={notesQuery.refetch}
-             />
+        />
     );
 }
