@@ -8,7 +8,7 @@ import {
     IconShare2
 } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { Card, Divider, IconButton, Surface, Text } from 'react-native-paper';
 
@@ -20,7 +20,7 @@ type Props = {
 
 function ArticleCardComponent({ article }: Props) {
     const [vote, setVote] = useState<-1 | 0 | 1>(0);
-    const [bookmarked, setBookmarked] = useState(false);
+    const [bookmarked, setBookmarked] = useState(article.user_bookmark);
     const createdLabel = useMemo(() => timeAgo(article.created_at), [article.created_at]);
     const excerpt = useMemo(() => article.content.slice(0, 180).trim(), [article.content]);
 
@@ -36,6 +36,16 @@ function ArticleCardComponent({ article }: Props) {
             params: { id: String(article.id) },
         });
     };
+
+    useEffect(() =>{
+        if(article.user_vote == -1){
+            setVote(-1)  
+        }else if(article.user_vote == 1){
+            setVote(1)  
+        }else{
+            setVote(0)  
+        }
+    })
 
     const handleShare = async () => {
         try {
