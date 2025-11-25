@@ -2,8 +2,9 @@
 import { IconCardsFilled, IconHelpHexagonFilled, IconX } from "@tabler/icons-react-native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { FAB, Text } from "react-native-paper";
+import { FAB } from "react-native-paper";
 import FlashCardMenu from "./flash-cards/flash-card-menu";
+import QuestionMenu from "./quiz/question-menu";
 
 
 const example = [
@@ -51,12 +52,12 @@ export default function QuestionTab() {
         }
         else {
             return (
-                <>
+                <View style={styles.centerContainer}>
                     <FAB
                         onPress={() => GoBack()}
                         icon={({ size, color }) => <IconX size={size} color={color} />} />
-                    <Text>2</Text>
-                </>
+                    <QuestionMenu/>
+                </View>
 
             )
         }
