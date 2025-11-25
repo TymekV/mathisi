@@ -48,6 +48,14 @@ impl note::Model {
             .await?
             .is_some();
 
+            let votes = upvote::Entity::find()
+        .filter(upvote::Column::NoteId.eq(self.id))
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|v| if v.is_upvote { 1 } else { -1 })
+        .sum::<i32>();
+
         Ok(NoteResponse {
             id: self.id,
             user_id: self.user_id,
@@ -58,6 +66,7 @@ impl note::Model {
             saves,
             user_vote,
             user_bookmark: is_bookmarked,
+            votes: votes
         })
     }
 }
@@ -128,6 +137,7 @@ pub struct NoteResponse {
     pub saves: i32,
     pub user_bookmark: bool,
     pub user_vote: i32,
+    pub votes: i32,
 }
 
 #[derive(Serialize, ToSchema)]
