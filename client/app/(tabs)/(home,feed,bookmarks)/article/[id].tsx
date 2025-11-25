@@ -1,13 +1,15 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
 import { useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { ActivityIndicator, Surface, Text, useTheme } from 'react-native-paper';
 
 type Note = components['schemas']['NoteResponse'];
 
 export default function NoteDetailsScreen() {
+    const theme = useTheme();
     const params = useLocalSearchParams<{ id?: string | string[] }>();
     const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
     const numericId = rawId ? Number(rawId) : Number.NaN;
@@ -22,48 +24,113 @@ export default function NoteDetailsScreen() {
         }
     );
 
+    const note: Note | undefined = noteQuery.data;
+    const codeFontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
+    const markdownStyles = useMemo(() => createMarkdownStyles(theme, codeFontFamily), [theme, codeFontFamily]);
+
+    const createdRelative = useMemo(
+        () => (note ? formatRelativeTime(note.created_at) : ''),
+        [note?.created_at]
+    );
+    const createdAbsolute = useMemo(
+        () => (note ? formatAbsoluteDate(note.created_at) : ''),
+        [note?.created_at]
+    );
+    const metaStats = useMemo(
+        () =>
+            note
+                ? [
+                      { label: 'Votes', value: `${note.votes}` },
+                      { label: 'Saves', value: `${note.saves}` },
+                      { label: 'Visibility', value: note.public ? 'Public' : 'Private' },
+                  ]
+                : [],
+        [note]
+    );
+
+    const loaderBackground = { backgroundColor: theme.colors.background };
+    const loaderText = { color: theme.colors.onBackground };
+
     if (!queryEnabled) {
         return (
-            <View style={styles.loaderContainer}>
-                <Text variant="bodyMedium">Invalid note identifier.</Text>
+            <View style={[styles.loaderContainer, loaderBackground]}>
+                <Text variant="bodyMedium" style={loaderText}>
+                    Invalid note identifier.
+                </Text>
             </View>
         );
     }
 
     if (noteQuery.isPending) {
         return (
-            <View style={styles.loaderContainer}>
+            <View style={[styles.loaderContainer, loaderBackground]}>
                 <ActivityIndicator animating />
             </View>
         );
     }
 
-    const note: Note | undefined = noteQuery.data;
-
     if (!note) {
         return (
-            <View style={styles.loaderContainer}>
-                <Text variant="bodyMedium">Note not found.</Text>
+            <View style={[styles.loaderContainer, loaderBackground]}>
+                <Text variant="bodyMedium" style={loaderText}>
+                    Note not found.
+                </Text>
             </View>
         );
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.detailsContainer}>
-            <Text style={markdownStylesDisplay.heading1}>{note.title}</Text>
-            <View style={styles.previewContainer}>
-                <Markdown style={markdownStylesDisplay}>{note.content}</Markdown>
+        <ScrollView
+            style={{ flex: 1, backgroundColor: theme.colors.background }}
+            contentContainerStyle={styles.detailsContainer}
+        >
+            <View style={styles.headerSection}>
+                <Text style={[styles.title, { color: theme.colors.onBackground }]}>{note.title}</Text>
+                <Text style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}>
+                    Created {createdAbsolute} · {createdRelative}
+                </Text>
+                <View style={styles.metaRow}>
+                    {metaStats.map((stat) => (
+                        <Surface
+                            key={stat.label}
+                            elevation={0}
+                            style={[
+                                styles.metaPill,
+                                {
+                                    backgroundColor: theme.colors.surfaceVariant,
+                                    borderColor: theme.colors.outlineVariant || theme.colors.outline,
+                                },
+                            ]}
+                        >
+                            <Text style={[styles.metaLabel, { color: theme.colors.onSurfaceVariant }]}>
+                                {stat.label}
+                            </Text>
+                            <Text style={[styles.metaValue, { color: theme.colors.onSurface }]}>{` ${stat.value}`}</Text>
+                        </Surface>
+                    ))}
+                </View>
             </View>
+            <Surface
+                elevation={0}
+                style={[
+                    styles.previewContainer,
+                    {
+                        backgroundColor: theme.colors.surface,
+                        borderColor: theme.colors.outlineVariant || theme.colors.outline,
+                    },
+                ]}
+            >
+                <Markdown style={markdownStyles}>{note.content}</Markdown>
+            </Surface>
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     previewContainer: {
-        flex: 1,
-        padding: 10,
-        backgroundColor: '#252525',
-        borderRadius: 12,
+        borderRadius: 20,
+        padding: 18,
+        borderWidth: 1,
     },
     loaderContainer: {
         flex: 1,
@@ -72,17 +139,126 @@ const styles = StyleSheet.create({
         padding: 24,
     },
     detailsContainer: {
-        padding: 16,
-        gap: 16,
+        padding: 20,
+        gap: 20,
+    },
+    headerSection: {
+        gap: 8,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '700',
+    },
+    timestamp: {
+        fontSize: 14,
+    },
+    metaRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+    },
+    metaPill: {
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    metaLabel: {
+        fontSize: 12,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    metaValue: {
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
-// Styles for the 'react-native-markdown-display' renderer
-const markdownStylesDisplay = StyleSheet.create({
-    body: { color: 'white' },
-    heading1: { color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-    heading2: { color: 'white', fontSize: 20, fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
-    list_item: { color: 'white', flexDirection: 'row', alignItems: 'flex-start' },
-    bullet_list_icon: { color: 'white', fontSize: 20 },
-    code_inline: { backgroundColor: '#333', color: '#ff79c6' },
-    code_block: { backgroundColor: '#333', padding: 10, borderRadius: 4 },
-});
+
+function createMarkdownStyles(theme: ReturnType<typeof useTheme>, codeFontFamily: string) {
+    const codeShell = {
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: theme.colors.outlineVariant || theme.colors.outline,
+        backgroundColor: theme.colors.surfaceVariant,
+    } as const;
+
+    return StyleSheet.create({
+        body: {
+            color: theme.colors.onSurface,
+            fontSize: 16,
+            lineHeight: 24,
+        },
+        heading1: {
+            color: theme.colors.onSurface,
+            fontSize: 24,
+            fontWeight: '700',
+            marginBottom: 12,
+        },
+        heading2: {
+            color: theme.colors.onSurface,
+            fontSize: 20,
+            fontWeight: '600',
+            marginTop: 18,
+            marginBottom: 8,
+        },
+        list_item: {
+            color: theme.colors.onSurface,
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+        },
+        code_inline: {
+            ...codeShell,
+            fontFamily: codeFontFamily,
+            color: theme.colors.onSecondaryContainer,
+            paddingHorizontal: 8,
+            paddingVertical: 2,
+            backgroundColor: theme.colors.secondaryContainer,
+        },
+        code_block: {
+            ...codeShell,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
+        fence: {
+            ...codeShell,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+            fontFamily: codeFontFamily,
+            color: theme.colors.onSurface,
+        },
+    });
+}
+
+function formatRelativeTime(dateString: string): string {
+    const now = Date.now();
+    const timestamp = new Date(dateString).getTime();
+    const seconds = Math.max(0, Math.floor((now - timestamp) / 1000));
+    const intervals: [string, number][] = [
+        ['year', 31_536_000],
+        ['month', 2_592_000],
+        ['week', 604_800],
+        ['day', 86_400],
+        ['hour', 3_600],
+        ['minute', 60],
+    ];
+
+    for (const [label, value] of intervals) {
+        const result = Math.floor(seconds / value);
+        if (result >= 1) {
+            return `${result} ${label}${result > 1 ? 's' : ''} ago`;
+        }
+    }
+
+    return 'just now';
+}
+
+function formatAbsoluteDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+}
