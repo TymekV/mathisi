@@ -189,4 +189,3 @@ async fn get_bookmarked_notes(
 
     Ok(Json(notes))
 }
-

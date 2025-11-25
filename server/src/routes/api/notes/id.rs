@@ -6,10 +6,10 @@ use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
-    entity::{note, save, user},
+    entity::{note, save, upvote, user},
     errors::{AxumError, AxumResult},
     middlewares::UnauthorizedError,
-    routes::api::notes::{NoteCreateRequest, NoteCreateResponse, NoteResponse},
+    routes::api::notes::NoteResponse,
     state::AppState,
 };
 
@@ -19,6 +19,8 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .routes(routes!(edit_note))
         .routes(routes!(bookmark_note))
         .routes(routes!(is_bookmark_on_note))
+        .routes(routes!(upvote_note))
+        .routes(routes!(downvote_note))
 }
 
 /// Get single note
@@ -58,6 +60,13 @@ pub struct NoteBookmarkResponse {
     pub success: bool,
     pub marked: bool,
 }
+
+#[derive(Serialize, ToSchema)]
+pub struct NoteUpvoteResponse {
+    pub success: bool,
+    pub is_upvoted: i32,
+}
+
 
 /// Edit note
 #[utoipa::path(
@@ -198,53 +207,98 @@ async fn bookmark_note(
     Ok(Json(NoteBookmarkResponse { success: true, marked : created}))
 }
 
-/// Bookmark note (toggle)
+/// Upvote note (toggle)
 #[utoipa::path(
-    method(get),
-    path = "/bookmark",
+    method(post),
+    path = "/upvote",
     params(
         ("id" = i32, Path, description = "Note ID")
     ),
     responses(
-        (status = OK, description = "Success", body = NoteCreateRequest),
+        (status = OK, description = "Success", body = NoteUpvoteResponse),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
     tag = "Notes"
 )]
-async fn note_saves(
+async fn upvote_note(
     Extension(state): Extension<AppState>,
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
-) -> AxumResult<Json<NoteBookmarkResponse>> {
+) -> AxumResult<Json<NoteUpvoteResponse>> {
 
 
-    let mut created :  bool = false;
-    // Ensure note exists
+    let mut value :  i32 = 0;
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
 
-    // Check if a save already exists
-    if let Some(existing_save) = save::Entity::find()
-        .filter(save::Column::UserId.eq(user.id))
-        .filter(save::Column::NoteId.eq(id))
+    if let Some(existing_save) = upvote::Entity::find()
+        .filter(upvote::Column::UserId.eq(user.id))
+        .filter(upvote::Column::NoteId.eq(id))
         .one(&state.db)
         .await?
     {
-        // Bookmark exists → remove it
         existing_save.delete(&state.db).await?;
     } else {
-        // Bookmark does NOT exist → create it
-        let new_save = save::ActiveModel {
+        let new_save = upvote::ActiveModel {
             user_id: Set(user.id),
             note_id: Set(id),
+            is_upvote: Set(true),
             ..Default::default()
         };
         new_save.insert(&state.db).await?;
-        created = true;
+        value = 1;
     }
 
     // Return updated note
-    Ok(Json(NoteBookmarkResponse { success: true, marked : created}))
+    Ok(Json(NoteUpvoteResponse { success: true, is_upvoted : value}))
+}
+
+/// Downvote note (toggle)
+#[utoipa::path(
+    method(post),
+    path = "/downvote",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteBookmarkResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn downvote_note(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteUpvoteResponse>> {
+
+
+    let mut value :  i32 = 0;
+    let note = note::Entity::find_by_id(id)
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
+
+    if let Some(existing_save) = upvote::Entity::find()
+        .filter(upvote::Column::UserId.eq(user.id))
+        .filter(upvote::Column::NoteId.eq(id))
+        .one(&state.db)
+        .await?
+    {
+        existing_save.delete(&state.db).await?;
+    } else {
+        let new_save = upvote::ActiveModel {
+            user_id: Set(user.id),
+            note_id: Set(id),
+            is_upvote: Set(false),
+            ..Default::default()
+        };
+        new_save.insert(&state.db).await?;
+        value = -1;
+    }
+
+    // Return updated note
+    Ok(Json(NoteUpvoteResponse { success: true, is_upvoted : value}))
 }
