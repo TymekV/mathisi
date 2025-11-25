@@ -11,12 +11,10 @@ import { registerAiNoteStatusHandlers } from '@/lib/state/ai-note-status-bridge'
 import { apiClient } from '@/lib/providers/api';
 import {
     IconArrowLeft,
-    IconBulb,
     IconPhotoPlus,
     IconShield,
     IconSparkles,
     IconTrash,
-    IconWand,
     IconWorld,
 } from '@tabler/icons-react-native';
 import { Image } from 'expo-image';
@@ -26,7 +24,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import {
     ActivityIndicator,
     Button,
-    Chip,
     HelperText,
     IconButton,
     SegmentedButtons,
@@ -41,7 +38,7 @@ type GeneratedNote = {
     content: string;
 };
 
-export default function AddNewScreen() {
+export default function NewAiScreen() {
     const theme = useTheme();
     const router = useRouter();
     const [activeNote, setActiveNote] = useState<GeneratedNote | null>(null);
@@ -187,13 +184,6 @@ function AiNoteGenerator({ onGenerated }: AiNoteGeneratorProps) {
             setStatusMessage('');
         }
     }, [pickImage]);
-
-    const handleSuggestionPress = useCallback((text: string) => {
-        setForm((prev) => ({
-            ...prev,
-            prompt: prev.prompt ? `${prev.prompt}\n\n${text}` : text,
-        }));
-    }, []);
 
     const handleGenerate = useCallback(async () => {
         if (!form.title.trim() || !form.prompt.trim()) {
@@ -498,15 +488,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 22,
     },
-    heroChipsRow: {
-        flexDirection: 'row',
-        gap: 10,
-        flexWrap: 'wrap',
-        marginTop: 8,
-    },
-    heroChip: {
-        backgroundColor: 'rgba(255,255,255,0.18)',
-    },
     sectionCard: {
         borderRadius: 24,
         padding: 18,
@@ -563,14 +544,6 @@ const styles = StyleSheet.create({
     attachmentExcerpt: {
         fontSize: 13,
         lineHeight: 18,
-    },
-    chipCloud: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 10,
-    },
-    promptChip: {
-        borderRadius: 999,
     },
     generateActions: {
         gap: 4,
