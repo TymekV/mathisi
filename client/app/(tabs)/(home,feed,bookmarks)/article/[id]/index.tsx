@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -23,7 +23,16 @@ export default function NoteDetailsScreen() {
         { params: { path: { id: queryEnabled ? numericId : 0 } } },
         {
             enabled: queryEnabled,
+            refetchOnMount: 'always'
         }
+    );
+
+    useFocusEffect(
+        useCallback(() => {
+            if (queryEnabled) {
+                noteQuery.refetch();
+            }
+        }, [queryEnabled, noteQuery.refetch])
     );
 
     const note: Note | undefined = noteQuery.data;
@@ -56,10 +65,10 @@ export default function NoteDetailsScreen() {
         () =>
             note
                 ? [
-                      { label: 'Votes', value: `${note.votes}` },
-                      { label: 'Saves', value: `${note.saves}` },
-                      { label: 'Visibility', value: note.public ? 'Public' : 'Private' },
-                  ]
+                    { label: 'Votes', value: `${note.votes}` },
+                    { label: 'Saves', value: `${note.saves}` },
+                    { label: 'Visibility', value: note.public ? 'Public' : 'Private' },
+                ]
                 : [],
         [note]
     );

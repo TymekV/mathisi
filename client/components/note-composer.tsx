@@ -4,17 +4,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { Button, HelperText, SegmentedButtons, Surface, Text, useTheme } from 'react-native-paper';
+import { Button, Checkbox, HelperText, SegmentedButtons, Surface, Text, useTheme } from 'react-native-paper';
 import { SimpleInput } from './simple-input';
 
 type Inputs = {
     title: string;
     content: string;
+    public: boolean;
 };
 
 type Props = {
     initialContent: string;
     initialTitle?: string;
+    initialPublic?: boolean;
     noteId?: number;
     onClose: () => void;
     onContentChange?: (content: string) => void;
@@ -24,6 +26,7 @@ type Props = {
 export function NoteComposer({
     initialContent,
     initialTitle,
+    initialPublic = false,
     noteId,
     onClose,
     onContentChange,
@@ -44,6 +47,7 @@ export function NoteComposer({
         defaultValues: {
             title: initialTitle ?? '',
             content: initialContent,
+            public: initialPublic,
         },
     });
 
@@ -51,8 +55,9 @@ export function NoteComposer({
         reset({
             title: initialTitle ?? '',
             content: initialContent,
+            public: initialPublic,
         });
-    }, [initialContent, initialTitle, reset]);
+    }, [initialContent, initialTitle, initialPublic, reset]);
 
     const contentValue = watch('content');
     const titleValue = watch('title');
@@ -162,7 +167,7 @@ export function NoteComposer({
                     onSubmitSuccess?.(noteId);
                 } else {
                     await createNoteMutation.mutateAsync({ body: values });
-                    reset({ title: '', content: '' });
+                    reset({ title: '', content: '', public: false });
                     onSubmitSuccess?.();
                 }
                 onClose();
@@ -288,6 +293,24 @@ export function NoteComposer({
                     </HelperText>
                 )}
                 <View className="flex-row justify-end items-center gap-2 mt-2">
+                    <Controller
+                        control={control}
+                        name="public"
+                        render={({ field: { onChange, value } }) => (
+                            <View className="flex-row items-center">
+                                <Checkbox
+                                    status={value ? 'checked' : 'unchecked'}
+                                    onPress={() => onChange(!value)}
+                                />
+                                <Text
+                                    onPress={() => onChange(!value)}
+                                    style={{ color: theme.colors.onSurface }}
+                                >
+                                    Public
+                                </Text>
+                            </View>
+                        )}
+                    />
                     <Button mode="elevated" disabled={isSubmitting} onPress={onClose}>
                         {secondaryActionLabel}
                     </Button>
