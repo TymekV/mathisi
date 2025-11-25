@@ -7,7 +7,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
     entity::{file, user},
-    errors::{AxumError, AxumResult},
+    errors::{AxumError, AxumResult, NotFoundError},
     middlewares::UnauthorizedError,
     routes::api::files::UploadedFile,
     state::AppState,
@@ -57,6 +57,7 @@ pub struct EditFile {
     ),
     responses(
         (status = OK, description = "Success", body = UploadedFile),
+        (status = NOT_FOUND, description = "Not found", body = NotFoundError),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
     tag = "Files"

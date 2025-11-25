@@ -1,5 +1,6 @@
 mod ai;
 mod id;
+mod quiz;
 
 use axum::{Extension, Json};
 use axum_valid::Valid;
@@ -26,7 +27,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .routes(routes!(create_note, get_notes))
         .routes(routes!(get_bookmarked_notes))
         .nest("/ai", ai::routes())
-        .nest("/{id}", id::routes())
+        .nest("/{id}", id::routes().nest("/quiz", quiz::routes()))
 }
 
 impl note::Model {

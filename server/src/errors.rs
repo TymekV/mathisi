@@ -4,8 +4,10 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use color_eyre::Report;
+use serde::Serialize;
 use serde_json::json;
 use tracing::error;
+use utoipa::ToSchema;
 
 #[derive(Debug)]
 pub struct AxumError {
@@ -74,3 +76,9 @@ impl IntoResponse for AxumError {
 }
 
 pub type AxumResult<T, E = AxumError> = std::result::Result<T, E>;
+
+#[derive(Serialize, ToSchema)]
+#[schema(example = json!({"error": "Not found"}))]
+pub struct NotFoundError {
+    error: String,
+}
