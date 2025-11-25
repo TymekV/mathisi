@@ -234,6 +234,8 @@ function ArticleCardComponent({ article, onUpdate, canEdit = false }: Props) {
                 </Card.Content>
             </Pressable>
             <Card.Actions style={styles.actions}>
+                {/* I love material ui so much */}
+                <IconButton icon={() => <></>} style={{ opacity: 0 }} />
                 <IconButton
                     icon={({ color, size }) => (
                         <IconArrowBigUpLineFilled

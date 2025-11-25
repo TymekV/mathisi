@@ -1,15 +1,15 @@
-import { useFocusEffect } from "expo-router";
-import React from "react";
-import { Dimensions, Pressable, StyleSheet } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { useFocusEffect } from 'expo-router';
+import React from 'react';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import Animated, {
     interpolate,
     useAnimatedStyle,
     useSharedValue,
     withTiming,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 interface Props {
     label_frontsize: string;
@@ -20,8 +20,8 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
     const rotation = useSharedValue(0);
 
     useFocusEffect(() => {
-        rotation.value = 0
-    })
+        rotation.value = 0;
+    });
 
     const flip = () => {
         rotation.value = withTiming(rotation.value === 0 ? 180 : 0, {
@@ -30,27 +30,21 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
     };
 
     const frontStyle = useAnimatedStyle(() => ({
-        transform: [
-            { perspective: 1000 },
-            { rotateY: `${rotation.value}deg` },
-        ],
+        transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }],
         opacity: interpolate(rotation.value, [0, 90, 90, 180], [1, 0, 0, 0]),
-        backfaceVisibility: "hidden",
-        position: "absolute",
-        width: "100%",
-        height: "100%",
+        backfaceVisibility: 'hidden',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
     }));
 
     const backStyle = useAnimatedStyle(() => ({
-        transform: [
-            { perspective: 1000 },
-            { rotateY: `${rotation.value + 180}deg` },
-        ],
+        transform: [{ perspective: 1000 }, { rotateY: `${rotation.value + 180}deg` }],
         opacity: interpolate(rotation.value, [0, 90, 90, 180], [0, 0, 0, 1]),
-        backfaceVisibility: "hidden",
-        position: "absolute",
-        width: "100%",
-        height: "100%",
+        backfaceVisibility: 'hidden',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
     }));
 
     return (
@@ -82,46 +76,44 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
 
 const styles = StyleSheet.create({
     pressable: {
-        width: "100%",
-        alignItems: "center",
+        width: '100%',
+        alignItems: 'center',
     },
     container: {
         width: width - 40,
         height: 220,
-        position: "relative",
+        position: 'relative',
         margin: 25,
     },
     cardWrapper: {
-        width: "100%",
-        height: "100%",
+        width: '100%',
+        height: '100%',
     },
     card: {
-        height: "100%"
+        height: '100%',
     },
-    cardBack: {
-
-    },
+    cardBack: {},
     cardContent: {
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     label: {
         fontSize: 18,
-        padding:10,
-        fontWeight: "600",
-        color: "rgba(255,255,255,0.7)",
-        textTransform: "uppercase",
+        padding: 10,
+        fontWeight: '600',
+        color: 'rgba(255,255,255,0.7)',
+        textTransform: 'uppercase',
         letterSpacing: 1,
     },
     cardText: {
         fontSize: 24,
-        fontWeight: "bold",
-        color: "#ffffff",
-        textAlign: "center",
+        fontWeight: 'bold',
+        color: '#ffffff',
+        textAlign: 'center',
     },
     hint: {
         opacity: 0.5,
         fontSize: 12,
-        color: "rgba(255,255,255,0.5)",
+        color: 'rgba(255,255,255,0.5)',
     },
 });

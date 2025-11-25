@@ -10,6 +10,7 @@ export default function FeedLayout() {
         <Stack screenOptions={{ header: (props) => <PaperAppbarHeader {...props} /> }}>
             <Stack.Screen name="index" options={{ title: 'Home' }} />
             <Stack.Screen name="article/[id]" options={{ title: 'Article' }} />
+            <Stack.Screen name="article/[id]/edit" options={{ title: 'Edit' }} />
             <Stack.Screen name="quiz/[id]" options={{ title: 'Quiz' }} />
         </Stack>
     );

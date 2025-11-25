@@ -1,14 +1,19 @@
-import { IconArrowsShuffle, IconChevronLeft, IconChevronRight, IconX } from "@tabler/icons-react-native";
-import { useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { FAB, ProgressBar, Surface, Text, useTheme } from "react-native-paper";
-import FlashCard from "./flash-card";
+import {
+    IconArrowsShuffle,
+    IconChevronLeft,
+    IconChevronRight,
+    IconX,
+} from '@tabler/icons-react-native';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { FAB, ProgressBar, Surface, Text, useTheme } from 'react-native-paper';
+import FlashCard from './flash-card';
 
 const example = [
-    { front: "1", back: "2" },
-    { front: "front2", back: "back2" },
-    { front: "1", back: "2" },
-    { front: "front1", back: "back1" }
+    { front: '1', back: '2' },
+    { front: 'front2', back: 'back2' },
+    { front: '1', back: '2' },
+    { front: 'front1', back: 'back1' },
 ];
 
 interface Props {
@@ -19,8 +24,8 @@ export default function FlashCardMenu({ onBack }: Props) {
     const theme = useTheme();
     const [index, setIndex] = useState<number>(0);
 
-    const prev = () => setIndex(i => (i - 1 + example.length) % example.length);
-    const next = () => setIndex(i => (i + 1) % example.length);
+    const prev = () => setIndex((i) => (i - 1 + example.length) % example.length);
+    const next = () => setIndex((i) => (i + 1) % example.length);
     const random = () => setIndex(Math.floor(Math.random() * example.length));
 
     const progress = (index + 1) / example.length;
@@ -46,11 +51,12 @@ export default function FlashCardMenu({ onBack }: Props) {
                         {index + 1}
                     </Text>
                     <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-                        {" / "}{example.length}
+                        {' / '}
+                        {example.length}
                     </Text>
                 </View>
-                <ProgressBar 
-                    progress={progress} 
+                <ProgressBar
+                    progress={progress}
                     style={styles.progressBar}
                     color={theme.colors.primary}
                 />
@@ -58,9 +64,9 @@ export default function FlashCardMenu({ onBack }: Props) {
 
             {/* Card Area */}
             <View style={styles.cardContainer}>
-                <FlashCard 
-                    label_frontsize={example[index].front} 
-                    label_backside={example[index].back} 
+                <FlashCard
+                    label_frontsize={example[index].front}
+                    label_backside={example[index].back}
                 />
             </View>
 
@@ -70,12 +76,12 @@ export default function FlashCardMenu({ onBack }: Props) {
                     icon={({ size, color }) => <IconChevronLeft size={size} color={color} />}
                     onPress={prev}
                 />
-                
+
                 <FAB
                     icon={({ size, color }) => <IconArrowsShuffle size={size} color={color} />}
                     onPress={random}
                 />
-                
+
                 <FAB
                     icon={({ size, color }) => <IconChevronRight size={size} color={color} />}
                     onPress={next}
