@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Button, HelperText, SegmentedButtons, TextInput, useTheme } from 'react-native-paper';
+import { SimpleInput } from './simple-input';
 
 type Inputs = {
     title: string;
@@ -71,7 +72,40 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
             style={{
                 backgroundColor: theme.colors.background,
             }}
-        ></KeyboardAvoidingView>
+        >
+            <View className="gap-1">
+                <Controller
+                    control={control}
+                    name="title"
+                    rules={{ required: 'Title is required' }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <SimpleInput
+                            value={value}
+                            onBlur={onBlur}
+                            placeholder="Name"
+                            onChangeText={onChange}
+                            containerStyle={{ height: 52 }}
+                        />
+                    )}
+                />
+                <Controller
+                    control={control}
+                    name="content"
+                    rules={{ required: 'Content is required' }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <SimpleInput
+                            value={value}
+                            onBlur={onBlur}
+                            placeholder="Name"
+                            onChangeText={onChange}
+                            side="bottom"
+                            multiline
+                            // containerStyle={{ flex: 1 }}
+                        />
+                    )}
+                />
+            </View>
+        </KeyboardAvoidingView>
     );
 }
 

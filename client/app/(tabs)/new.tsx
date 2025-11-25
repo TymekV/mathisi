@@ -84,10 +84,7 @@ export default function AddNewScreen() {
     };
 
     return (
-        <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-        >
+        <View style={{ flex: 1 }}>
             {isWriting ? (
                 <NoteComposer
                     initialContent={writing}
@@ -112,7 +109,7 @@ export default function AddNewScreen() {
                     />
                 </View>
             )}
-        </ScrollView>
+        </View>
     );
 }
 
