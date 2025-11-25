@@ -1,11 +1,13 @@
 import type { components } from '@/types/api';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import {
     IconArrowBigDownLinesFilled,
     IconArrowBigUpLineFilled,
     IconBookmark,
     IconBookmarkFilled,
-    IconCardsFilled
+    IconCards,
+    IconCardsFilled,
+    IconShare,
+    IconShare2,
 } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import React, { memo, useMemo, useState } from 'react';
@@ -57,9 +59,6 @@ function ArticleCardComponent({ article }: Props) {
                     <View style={styles.meta}>
                         <Text variant="titleMedium">{article.title}</Text>
                         <Text variant="bodySmall" style={styles.metaMuted}>
-                            By user #{article.user_id}
-                        </Text>
-                        <Text variant="bodySmall" style={styles.metaMuted}>
                             Updated {createdLabel}
                         </Text>
                     </View>
@@ -91,26 +90,21 @@ function ArticleCardComponent({ article }: Props) {
                     onPress={() => setVote((current) => (current === -1 ? 0 : -1))}
                 />
                 <IconButton
-                    icon={({ color, size }) => (
-                        <IconCardsFilled
-                            color={ color}
-                            size={size}
-                        />
-                    )}
+                    icon={({ color, size }) => <IconCards color={color} size={size} />}
                     onPress={() => handleQuizNavigate()}
                 />
                 <IconButton
-                    icon={({ color, size }) => (
-                        bookmarked
-                            ?
+                    icon={({ color, size }) =>
+                        bookmarked ? (
                             <IconBookmarkFilled color={color} size={size} />
-                            :
+                        ) : (
                             <IconBookmark color={color} size={size} />
-                    )}
+                        )
+                    }
                     onPress={() => setBookmarked((prev) => !prev)}
                 />
                 <IconButton
-                    icon={({ color, size }) => <FontAwesome5 name="share" size={24} color={color} />}
+                    icon={({ color, size }) => <IconShare2 size={size} color={color} />}
                     onPress={handleShare}
                 />
             </Card.Actions>
@@ -152,6 +146,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
+        paddingTop: 12,
     },
     avatar: {
         width: 48,
