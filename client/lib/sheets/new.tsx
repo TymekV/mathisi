@@ -1,7 +1,9 @@
 import { SheetOption } from '@/components/sheet-option';
 import { StyledActionSheet } from '@/components/styled-action-sheet';
 import { useNew } from '@/hooks/use-new';
-import { IconCamera, IconNotebook, IconPencil } from '@tabler/icons-react-native';
+import { addAttachments } from '@/lib/state/ai-note-draft';
+import { emitAiNoteStatus, emitAiNoteUploading } from '@/lib/state/ai-note-status-bridge';
+import { IconCamera, IconNotebook, IconPencil, IconSparkles } from '@tabler/icons-react-native';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { SheetManager, SheetProps } from 'react-native-actions-sheet';
@@ -42,9 +44,26 @@ export default function NewSheet({ sheetId, payload }: SheetProps<'new'>) {
                         }}
                     />
                     <SheetOption
-                        icon={({ size, color }) => <IconCamera size={size} color={color} />}
-                        label="From Photo"
-                        onPress={newNote.pickImage}
+                        icon={({ size, color }) => <IconSparkles size={size} color={color} />}
+                        label="With AI"
+                        onPress={async () => {
+                            SheetManager.hide(sheetId);
+                            router.push('/new');
+                            // emitAiNoteUploading(true);
+                            // try {
+                            //     const files = await newNote.pickImage({
+                            //         onStatus: emitAiNoteStatus,
+                            //     });
+                            //     if (files.length) {
+                            //         addAttachments(files);
+                            //     }
+                            // } catch (error) {
+                            //     console.error('Failed to process files', error);
+                            // } finally {
+                            //     emitAiNoteUploading(false);
+                            //     emitAiNoteStatus('');
+                            // }
+                        }}
                     />
                 </View>
             </View>

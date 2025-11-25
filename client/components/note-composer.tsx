@@ -14,14 +14,25 @@ type Inputs = {
 
 type Props = {
     initialContent: string;
+    initialTitle?: string;
+    noteId?: number;
     onClose: () => void;
     onContentChange?: (content: string) => void;
+    onSubmitSuccess?: (noteId?: number) => void;
 };
 
-export function NoteComposer({ initialContent, onClose, onContentChange }: Props) {
+export function NoteComposer({
+    initialContent,
+    initialTitle,
+    noteId,
+    onClose,
+    onContentChange,
+    onSubmitSuccess,
+}: Props) {
     const [mode, setMode] = useState<'edit' | 'preview'>('edit');
     const [submitError, setSubmitError] = useState('');
     const theme = useTheme();
+    const isEditingExisting = typeof noteId === 'number';
 
     const {
         control,
@@ -31,10 +42,17 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
         watch,
     } = useForm<Inputs>({
         defaultValues: {
-            title: '',
+            title: initialTitle ?? '',
             content: initialContent,
         },
     });
+
+    useEffect(() => {
+        reset({
+            title: initialTitle ?? '',
+            content: initialContent,
+        });
+    }, [initialContent, initialTitle, reset]);
 
     const contentValue = watch('content');
     const titleValue = watch('title');
@@ -127,27 +145,45 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
         }
     }, [contentValue, onContentChange]);
 
-    const createNoteMutation = apiClient.useMutation('post', '/api/notes', {
-        onSuccess: () => {
-            reset();
-            onClose();
-        },
-        onError: () => {
-            setSubmitError('We could not save your note. Please try again.');
-        },
-    });
+    const createNoteMutation = apiClient.useMutation('post', '/api/notes');
+    const editNoteMutation = apiClient.useMutation('patch', '/api/notes/{id}');
+
+    const isSubmitting = createNoteMutation.isPending || editNoteMutation.isPending;
 
     const onSubmit = useCallback(
         async (values: Inputs) => {
             setSubmitError('');
             try {
-                await createNoteMutation.mutateAsync({ body: values });
+                if (isEditingExisting && typeof noteId === 'number') {
+                    await editNoteMutation.mutateAsync({
+                        params: { path: { id: noteId } },
+                        body: values,
+                    });
+                    onSubmitSuccess?.(noteId);
+                } else {
+                    await createNoteMutation.mutateAsync({ body: values });
+                    reset({ title: '', content: '' });
+                    onSubmitSuccess?.();
+                }
+                onClose();
             } catch (error) {
-                console.error('Failed to create note', error);
+                console.error('Failed to submit note', error);
+                setSubmitError('We could not save your note. Please try again.');
             }
         },
-        [createNoteMutation]
+        [
+            createNoteMutation,
+            editNoteMutation,
+            isEditingExisting,
+            noteId,
+            onClose,
+            onSubmitSuccess,
+            reset,
+        ]
     );
+
+    const primaryActionLabel = isEditingExisting ? 'Save changes' : 'Publish';
+    const secondaryActionLabel = isEditingExisting ? 'Back' : 'Cancel';
 
     return (
         <KeyboardAvoidingView
@@ -252,19 +288,15 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                     </HelperText>
                 )}
                 <View className="flex-row justify-end items-center gap-2 mt-2">
-                    <Button
-                        mode="elevated"
-                        disabled={createNoteMutation.isPending}
-                        onPress={onClose}
-                    >
-                        Cancel
+                    <Button mode="elevated" disabled={isSubmitting} onPress={onClose}>
+                        {secondaryActionLabel}
                     </Button>
                     <Button
                         mode="contained"
                         onPress={handleSubmit(onSubmit)}
-                        loading={createNoteMutation.isPending}
+                        loading={isSubmitting}
                     >
-                        Publish
+                        {primaryActionLabel}
                     </Button>
                 </View>
             </View>

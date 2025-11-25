@@ -4,9 +4,16 @@ import { Surface, useTheme } from 'react-native-paper';
 export interface SimpleInputProps extends TextInputProps {
     side?: 'top' | 'bottom';
     containerStyle?: View['props']['style'];
+    elevation?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
-export function SimpleInput({ side = 'top', containerStyle, style, ...props }: SimpleInputProps) {
+export function SimpleInput({
+    side = 'top',
+    elevation = 1,
+    containerStyle,
+    style,
+    ...props
+}: SimpleInputProps) {
     const theme = useTheme();
 
     return (
@@ -23,6 +30,7 @@ export function SimpleInput({ side = 'top', containerStyle, style, ...props }: S
                 containerStyle,
             ]}
             mode="flat"
+            elevation={elevation}
         >
             <TextInput
                 {...props}
