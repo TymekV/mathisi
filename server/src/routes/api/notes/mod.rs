@@ -1,3 +1,4 @@
+mod ai;
 mod id;
 
 use axum::{Extension, Json};
@@ -24,6 +25,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_note, get_notes))
         .routes(routes!(get_bookmarked_notes))
+        .nest("/ai", ai::routes())
         .nest("/{id}", id::routes())
 }
 

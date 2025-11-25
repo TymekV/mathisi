@@ -59,6 +59,7 @@ pub struct Redis {
 pub struct Ai {
     pub base_url: String,
     pub api_key: String,
+    pub model_id: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -139,6 +140,7 @@ impl Settings {
             ai: Ai {
                 base_url: "https://openrouter.ai/api/v1".to_string(),
                 api_key: "your_api_key".to_string(),
+                model_id: "qwen/qwen3-vl-30b-a3b-instruct".to_string(),
             },
             redis: Redis {
                 connection_string: "redis://localhost:6379".to_string(),

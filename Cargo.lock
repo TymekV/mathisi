@@ -3053,6 +3053,7 @@ dependencies = [
  "async-trait",
  "axum",
  "axum-valid",
+ "base64",
  "chrono",
  "color-eyre",
  "config",
