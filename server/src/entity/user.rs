@@ -7,7 +7,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    
+
     #[sea_orm(unique)]
     pub username: String,
 
@@ -18,5 +18,9 @@ pub struct Model {
 
     #[sea_orm(column_type = "DateTime")]
     pub created_at: DateTime,
+
+    /// Raw profile picture bytes (PNG/JPEG/etc). `None` if not set.
+    pub profile_picture: Option<Vec<u8>>,
 }
+
 impl ActiveModelBehavior for ActiveModel {}
