@@ -28,13 +28,13 @@ function ArticleCardComponent({ article }: Props) {
 
     const handleNavigate = () => {
         router.push({
-            pathname: '/(tabs)/(home)/article/[id]',
+            pathname: '/article/[id]',
             params: { id: String(article.id) },
         });
     };
     const handleQuizNavigate = () => {
         router.push({
-            pathname: '/(tabs)/(home)/quiz/[id]',
+            pathname: '/quiz/[id]',
             params: { id: String(article.id) },
         });
     };

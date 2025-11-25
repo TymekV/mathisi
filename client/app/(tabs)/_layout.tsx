@@ -1,6 +1,12 @@
 import TabBar from '@/components/TabBar';
 import { useAuth } from '@/lib/providers/auth';
-import { IconBookmark, IconCamera, IconHome, IconUser, IconWorld } from '@tabler/icons-react-native';
+import {
+    IconBookmark,
+    IconCamera,
+    IconHome,
+    IconUser,
+    IconWorld,
+} from '@tabler/icons-react-native';
 import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -24,7 +30,7 @@ export default function Layout() {
     return (
         <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
             <Tabs.Screen
-                name="feed"
+                name="(feed)"
                 options={{
                     title: 'Feed',
                     tabBarIcon: ({ color, focused }) => (
@@ -33,20 +39,11 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="home"
+                name="(home)"
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color, focused }) => (
                         <IconHome color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="bookmarks"
-                options={{
-                    title: 'Bookmarks',
-                    tabBarIcon: ({ color, focused }) => (
-                        <IconBookmark color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
                     ),
                 }}
             />
@@ -60,7 +57,16 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="(home)"
+                name="(bookmarks)"
+                options={{
+                    title: 'Bookmarks',
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconBookmark color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="profile"
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, focused }) => (
