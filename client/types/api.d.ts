@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    '/api/feed': {
+    "/api/feed": {
         parameters: {
             query?: never;
             header?: never;
@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get public notes for your feed */
-        get: operations['get_feed'];
+        get: operations["get_feed"];
         put?: never;
         post?: never;
         delete?: never;
@@ -21,7 +21,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/files': {
+    "/api/files": {
         parameters: {
             query?: never;
             header?: never;
@@ -31,14 +31,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Upload files */
-        post: operations['upload_files'];
+        post: operations["upload_files"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/files/{id}': {
+    "/api/files/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -46,17 +46,17 @@ export interface paths {
             cookie?: never;
         };
         /** Get file contents */
-        get: operations['get_file'];
+        get: operations["get_file"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Edit file metadata */
-        patch: operations['edit_file'];
+        patch: operations["edit_file"];
         trace?: never;
     };
-    '/api/login': {
+    "/api/login": {
         parameters: {
             query?: never;
             header?: never;
@@ -66,14 +66,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Log in */
-        post: operations['login'];
+        post: operations["login"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes': {
+    "/api/notes": {
         parameters: {
             query?: never;
             header?: never;
@@ -81,17 +81,17 @@ export interface paths {
             cookie?: never;
         };
         /** Get all your notes */
-        get: operations['get_notes'];
+        get: operations["get_notes"];
         put?: never;
         /** Create note */
-        post: operations['create_note'];
+        post: operations["create_note"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes/ai': {
+    "/api/notes/ai": {
         parameters: {
             query?: never;
             header?: never;
@@ -104,14 +104,14 @@ export interface paths {
          * Create note with images using AI
          * @description Returns generated note content
          */
-        post: operations['create_ai_note'];
+        post: operations["create_ai_note"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes/bookmark': {
+    "/api/notes/bookmark": {
         parameters: {
             query?: never;
             header?: never;
@@ -119,7 +119,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all your bookmarked notes */
-        get: operations['get_bookmarked_notes'];
+        get: operations["get_bookmarked_notes"];
         put?: never;
         post?: never;
         delete?: never;
@@ -128,7 +128,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/notes/{id}': {
+    "/api/notes/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -136,34 +136,34 @@ export interface paths {
             cookie?: never;
         };
         /** Get single note */
-        get: operations['get_note'];
+        get: operations["get_note"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Edit note */
-        patch: operations['edit_note'];
+        patch: operations["edit_note"];
         trace?: never;
     };
-    '/api/notes/{id}/bookmark': {
+    "/api/notes/{id}/bookmark": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations['is_bookmark_on_note'];
+        get: operations["is_bookmark_on_note"];
         put?: never;
         /** Bookmark note (toggle) */
-        post: operations['bookmark_note'];
+        post: operations["bookmark_note"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes/{id}/downvote': {
+    "/api/notes/{id}/downvote": {
         parameters: {
             query?: never;
             header?: never;
@@ -173,14 +173,32 @@ export interface paths {
         get?: never;
         put?: never;
         /** Downvote note (toggle) */
-        post: operations['downvote_note'];
+        post: operations["downvote_note"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes/{id}/upvote': {
+    "/api/notes/{id}/quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get quiz for note */
+        get: operations["get_quizes"];
+        put?: never;
+        /** Create quiz for note */
+        post: operations["create_quiz"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notes/{id}/upvote": {
         parameters: {
             query?: never;
             header?: never;
@@ -190,21 +208,21 @@ export interface paths {
         get?: never;
         put?: never;
         /** Upvote note (toggle) */
-        post: operations['upvote_note'];
+        post: operations["upvote_note"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/notes/{id}/vote': {
+    "/api/notes/{id}/vote": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations['get_note_vote'];
+        get: operations["get_note_vote"];
         put?: never;
         post?: never;
         delete?: never;
@@ -213,14 +231,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/notes/{id}/votes': {
+    "/api/notes/{id}/votes": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations['get_note_votes'];
+        get: operations["get_note_votes"];
         put?: never;
         post?: never;
         delete?: never;
@@ -229,7 +247,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/register': {
+    "/api/register": {
         parameters: {
             query?: never;
             header?: never;
@@ -239,14 +257,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Register */
-        post: operations['login'];
+        post: operations["login"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    '/api/user': {
+    "/api/user": {
         parameters: {
             query?: never;
             header?: never;
@@ -254,7 +272,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get current user info */
-        get: operations['get_current_user'];
+        get: operations["get_current_user"];
         put?: never;
         post?: never;
         delete?: never;
@@ -263,7 +281,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/user/{id}': {
+    "/api/user/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -271,7 +289,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get user public info */
-        get: operations['get_user'];
+        get: operations["get_user"];
         put?: never;
         post?: never;
         delete?: never;
@@ -280,15 +298,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/user/{id}/avatar': {
+    "/api/user/{id}/avatar": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations['get_user_profile_picture'];
-        put: operations['set_user_profile_picture'];
+        get: operations["get_user_profile_picture"];
+        put: operations["set_user_profile_picture"];
         post?: never;
         delete?: never;
         options?: never;
@@ -296,7 +314,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    '/api/user/{id}/notes': {
+    "/api/user/{id}/notes": {
         parameters: {
             query?: never;
             header?: never;
@@ -304,7 +322,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get user public notes */
-        get: operations['get_user_notes'];
+        get: operations["get_user_notes"];
         put?: never;
         post?: never;
         delete?: never;
@@ -345,7 +363,15 @@ export interface components {
             token: string;
         };
         ManyNotesResponse: {
-            notes: components['schemas']['NoteResponse'][];
+            notes: components["schemas"]["NoteResponse"][];
+        };
+        /**
+         * @example {
+         *       "error": "Not found"
+         *     }
+         */
+        NotFoundError: {
+            error: string;
         };
         NoteBookmarkResponse: {
             marked: boolean;
@@ -395,6 +421,17 @@ export interface components {
             id: number;
             username: string;
         };
+        Question: {
+            answers: string[];
+            /** Format: int32 */
+            correct: number;
+            title: string;
+        };
+        QuizResponse: {
+            /** Format: int32 */
+            id: number;
+            questions: components["schemas"]["Question"][];
+        };
         RegisterRequest: {
             email: string;
             password: string;
@@ -412,7 +449,7 @@ export interface components {
             error: string;
         };
         UploadResponse: {
-            files: components['schemas']['UploadedFile'][];
+            files: components["schemas"]["UploadedFile"][];
         };
         UploadedFile: {
             filename: string;
@@ -423,6 +460,7 @@ export interface components {
             /** Format: date-time */
             created_at: string;
             email: string;
+            has_profile_picture: boolean;
             /** Format: int32 */
             id: number;
             username: string;
@@ -451,7 +489,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['ManyNotesResponse'];
+                    "application/json": components["schemas"]["ManyNotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -460,7 +498,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -480,7 +518,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UploadResponse'];
+                    "application/json": components["schemas"]["UploadResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -489,7 +527,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -512,7 +550,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/octet-stream': unknown;
+                    "application/octet-stream": unknown;
                 };
             };
             /** @description Unauthorized */
@@ -521,7 +559,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -538,7 +576,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['EditFile'];
+                "application/json": components["schemas"]["EditFile"];
             };
         };
         responses: {
@@ -548,7 +586,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UploadedFile'];
+                    "application/json": components["schemas"]["UploadedFile"];
                 };
             };
             /** @description Unauthorized */
@@ -557,7 +595,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
                 };
             };
         };
@@ -571,7 +618,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['LoginRequest'];
+                "application/json": components["schemas"]["LoginRequest"];
             };
         };
         responses: {
@@ -581,7 +628,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['LoginResponse'];
+                    "application/json": components["schemas"]["LoginResponse"];
                 };
             };
         };
@@ -601,7 +648,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['ManyNotesResponse'];
+                    "application/json": components["schemas"]["ManyNotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -610,7 +657,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -624,7 +671,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['NoteCreateRequest'];
+                "application/json": components["schemas"]["NoteCreateRequest"];
             };
         };
         responses: {
@@ -634,7 +681,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteCreateResponse'];
+                    "application/json": components["schemas"]["NoteCreateResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -643,7 +690,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -657,7 +704,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['AiNoteCreateRequest'];
+                "application/json": components["schemas"]["AiNoteCreateRequest"];
             };
         };
         responses: {
@@ -667,7 +714,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['AiNoteCreateResponse'];
+                    "application/json": components["schemas"]["AiNoteCreateResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -676,7 +723,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -696,7 +743,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['ManyNotesResponse'];
+                    "application/json": components["schemas"]["ManyNotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -705,7 +752,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -728,7 +775,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteResponse'];
+                    "application/json": components["schemas"]["NoteResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -737,7 +784,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -754,7 +801,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['EditNote'];
+                "application/json": components["schemas"]["EditNote"];
             };
         };
         responses: {
@@ -764,7 +811,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteResponse'];
+                    "application/json": components["schemas"]["NoteResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -773,7 +820,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -796,7 +843,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteBookmarkResponse'];
+                    "application/json": components["schemas"]["NoteBookmarkResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -805,7 +852,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -828,7 +875,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteBookmarkResponse'];
+                    "application/json": components["schemas"]["NoteBookmarkResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -837,7 +884,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -860,7 +907,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteBookmarkResponse'];
+                    "application/json": components["schemas"]["NoteBookmarkResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -869,7 +916,89 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    get_quizes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
+                };
+            };
+        };
+    };
+    create_quiz: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
                 };
             };
         };
@@ -892,7 +1021,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteUpvoteResponse'];
+                    "application/json": components["schemas"]["NoteUpvoteResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -901,7 +1030,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -924,7 +1053,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteVotesResponse'];
+                    "application/json": components["schemas"]["NoteVotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -933,7 +1062,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -956,7 +1085,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['NoteVotesResponse'];
+                    "application/json": components["schemas"]["NoteVotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -965,7 +1094,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -979,7 +1108,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                'application/json': components['schemas']['RegisterRequest'];
+                "application/json": components["schemas"]["RegisterRequest"];
             };
         };
         responses: {
@@ -989,7 +1118,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['RegisterResponse'];
+                    "application/json": components["schemas"]["RegisterResponse"];
                 };
             };
         };
@@ -1009,7 +1138,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UserResponse'];
+                    "application/json": components["schemas"]["UserResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -1018,7 +1147,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -1041,7 +1170,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['PublicUserResponse'];
+                    "application/json": components["schemas"]["PublicUserResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -1050,7 +1179,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
@@ -1073,7 +1202,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'image/png': string;
+                    "image/png": string;
                 };
             };
             /** @description Unauthorized */
@@ -1082,7 +1211,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
             /** @description User or picture not found */
@@ -1107,7 +1236,7 @@ export interface operations {
         /** @description Raw image bytes */
         requestBody?: {
             content: {
-                'image/png': unknown;
+                "image/png": unknown;
             };
         };
         responses: {
@@ -1124,7 +1253,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
             /** @description User not found */
@@ -1154,7 +1283,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['ManyNotesResponse'];
+                    "application/json": components["schemas"]["ManyNotesResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -1163,7 +1292,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    'application/json': components['schemas']['UnauthorizedError'];
+                    "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
         };
