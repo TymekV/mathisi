@@ -1,3 +1,4 @@
+import PaperAppbarHeader from '@/components/navigation/paper-appbar-header';
 import { Stack } from 'expo-router';
 
 export const unstable_settings = {
@@ -6,10 +7,10 @@ export const unstable_settings = {
 
 export default function FeedLayout() {
     return (
-        <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
-            <Stack.Screen name="article/[id]" options={{ headerShown: false, headerTitle: "" }} />
-            <Stack.Screen name="quiz/[id]" options={{ headerShown: false, headerTitle: "" }} />
+        <Stack screenOptions={{ header: (props) => <PaperAppbarHeader {...props} /> }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="article/[id]" options={{ title: 'Article' }} />
+            <Stack.Screen name="quiz/[id]" options={{ title: 'Quiz' }} />
         </Stack>
     );
 }

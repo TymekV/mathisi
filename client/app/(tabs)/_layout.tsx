@@ -1,4 +1,5 @@
 import TabBar from '@/components/TabBar';
+import PaperAppbarHeader from '@/components/navigation/paper-appbar-header';
 import { useAuth } from '@/lib/providers/auth';
 import {
     IconBookmark,
@@ -29,7 +30,12 @@ export default function Layout() {
     }
 
     return (
-        <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
+        <Tabs
+            tabBar={(props) => <TabBar {...props} />}
+            screenOptions={{
+                header: (props) => <PaperAppbarHeader {...props} />,
+            }}
+        >
             <Tabs.Screen
                 name="(home)"
                 options={{

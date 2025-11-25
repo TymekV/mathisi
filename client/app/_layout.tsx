@@ -5,6 +5,7 @@ import '@/lib/sheets';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider } from '@/lib/providers/auth';
 import Query from '@/lib/providers/query';
+import PaperAppbarHeader from '@/components/navigation/paper-appbar-header';
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme';
 import {
     DarkTheme as NavDarkTheme,
@@ -20,6 +21,7 @@ import {
     MD3LightTheme,
     PaperProvider,
 } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -57,19 +59,26 @@ export default function RootLayout() {
                                 : { ...DarkTheme, fonts: NavDarkTheme.fonts }
                         }
                     >
-                        <PaperProvider theme={paperTheme}>
-                            <SheetProvider>
-                                <Stack initialRouteName="index">
-                                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                                    <Stack.Screen
-                                        name="modal"
-                                        options={{ presentation: 'modal', title: 'Modal' }}
-                                    />
-                                </Stack>
-                                <StatusBar style="auto" />
-                            </SheetProvider>
-                        </PaperProvider>
+                        <SafeAreaProvider>
+                            <PaperProvider theme={paperTheme}>
+                                <SheetProvider>
+                                    <Stack
+                                        initialRouteName="index"
+                                        screenOptions={{
+                                            header: (props) => <PaperAppbarHeader {...props} />,
+                                        }}
+                                    >
+                                        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                                        <Stack.Screen
+                                            name="modal"
+                                            options={{ presentation: 'modal', title: 'Modal' }}
+                                        />
+                                    </Stack>
+                                    <StatusBar style="auto" />
+                                </SheetProvider>
+                            </PaperProvider>
+                        </SafeAreaProvider>
                     </ThemeProvider>
                 </Query>
             </QueryClientProvider>

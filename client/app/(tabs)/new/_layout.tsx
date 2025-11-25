@@ -1,3 +1,4 @@
+import PaperAppbarHeader from '@/components/navigation/paper-appbar-header';
 import { Stack } from 'expo-router';
 
 export const unstable_settings = {
@@ -5,5 +6,7 @@ export const unstable_settings = {
 };
 
 export default function Layout() {
-    return <Stack screenOptions={{ headerShown: false }}></Stack>;
+    return (
+        <Stack screenOptions={{ header: (props) => <PaperAppbarHeader {...props} /> }}></Stack>
+    );
 }
