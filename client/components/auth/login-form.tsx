@@ -62,10 +62,10 @@ export function LoginForm({ onNavigateToRegister }: Props) {
                     name="username"
                     rules={{
                         required: 'Username is required',
-                        minLength: {
-                            value: 3,
-                            message: 'Username must have at least 3 characters.',
-                        },
+                        // minLength: {
+                        //     value: 3,
+                        //     message: 'Username must have at least 3 characters.',
+                        // },
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
@@ -95,10 +95,10 @@ export function LoginForm({ onNavigateToRegister }: Props) {
                     name="password"
                     rules={{
                         required: 'Password is required',
-                        minLength: {
-                            value: 6,
-                            message: 'Password must have at least 6 characters.',
-                        },
+                        // minLength: {
+                        //     value: 6,
+                        //     message: 'Password must have at least 6 characters.',
+                        // },
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
