@@ -322,8 +322,11 @@ export interface components {
             /** Format: int32 */
             saves: number;
             title: string;
+            user_bookmark: boolean;
             /** Format: int32 */
             user_id: number;
+            /** Format: int32 */
+            user_vote: number;
         };
         NoteUpvoteResponse: {
             /** Format: int32 */
