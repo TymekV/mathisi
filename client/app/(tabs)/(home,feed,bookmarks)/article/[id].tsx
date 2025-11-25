@@ -26,7 +26,10 @@ export default function NoteDetailsScreen() {
 
     const note: Note | undefined = noteQuery.data;
     const codeFontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
-    const markdownStyles = useMemo(() => createMarkdownStyles(theme, codeFontFamily), [theme, codeFontFamily]);
+    const markdownStyles = useMemo(
+        () => createMarkdownStyles(theme, codeFontFamily),
+        [theme, codeFontFamily]
+    );
 
     const createdRelative = useMemo(
         () => (note ? formatRelativeTime(note.created_at) : ''),
@@ -85,7 +88,9 @@ export default function NoteDetailsScreen() {
             contentContainerStyle={styles.detailsContainer}
         >
             <View style={styles.headerSection}>
-                <Text style={[styles.title, { color: theme.colors.onBackground }]}>{note.title}</Text>
+                <Text style={[styles.title, { color: theme.colors.onBackground }]}>
+                    {note.title}
+                </Text>
                 <Text style={[styles.timestamp, { color: theme.colors.onSurfaceVariant }]}>
                     Created {createdAbsolute} · {createdRelative}
                 </Text>
@@ -98,14 +103,19 @@ export default function NoteDetailsScreen() {
                                 styles.metaPill,
                                 {
                                     backgroundColor: theme.colors.surfaceVariant,
-                                    borderColor: theme.colors.outlineVariant || theme.colors.outline,
+                                    borderColor:
+                                        theme.colors.outlineVariant || theme.colors.outline,
                                 },
                             ]}
                         >
-                            <Text style={[styles.metaLabel, { color: theme.colors.onSurfaceVariant }]}>
+                            <Text
+                                style={[styles.metaLabel, { color: theme.colors.onSurfaceVariant }]}
+                            >
                                 {stat.label}
                             </Text>
-                            <Text style={[styles.metaValue, { color: theme.colors.onSurface }]}>{` ${stat.value}`}</Text>
+                            <Text
+                                style={[styles.metaValue, { color: theme.colors.onSurface }]}
+                            >{` ${stat.value}`}</Text>
                         </Surface>
                     ))}
                 </View>
