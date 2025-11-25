@@ -1,6 +1,8 @@
 use axum::{Extension, Json, extract::Path};
 use color_eyre::eyre::eyre;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, ModelTrait, QueryFilter,
+};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -21,6 +23,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .routes(routes!(is_bookmark_on_note))
         .routes(routes!(upvote_note))
         .routes(routes!(downvote_note))
+        .routes(routes!(get_note_votes))
 }
 
 /// Get single note
@@ -66,7 +69,11 @@ pub struct NoteUpvoteResponse {
     pub success: bool,
     pub is_upvoted: i32,
 }
-
+#[derive(Serialize, ToSchema)]
+pub struct NoteVotesResponse {
+    pub success: bool,
+    pub votes: i32,
+}
 
 /// Edit note
 #[utoipa::path(
@@ -134,7 +141,6 @@ async fn is_bookmark_on_note(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteBookmarkResponse>> {
-
     // Ensure note exists
     note::Entity::find_by_id(id)
         .one(&state.db)
@@ -149,12 +155,11 @@ async fn is_bookmark_on_note(
         .await?
         .is_some();
 
-    Ok(Json(NoteBookmarkResponse { 
-        success: true, 
-        marked: is_bookmarked 
+    Ok(Json(NoteBookmarkResponse {
+        success: true,
+        marked: is_bookmarked,
     }))
 }
-
 
 /// Bookmark note (toggle)
 #[utoipa::path(
@@ -174,9 +179,7 @@ async fn bookmark_note(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteBookmarkResponse>> {
-
-
-    let mut created :  bool = false;
+    let mut created: bool = false;
     // Ensure note exists
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
@@ -204,7 +207,10 @@ async fn bookmark_note(
     }
 
     // Return updated note
-    Ok(Json(NoteBookmarkResponse { success: true, marked : created}))
+    Ok(Json(NoteBookmarkResponse {
+        success: true,
+        marked: created,
+    }))
 }
 
 /// Upvote note (toggle)
@@ -225,9 +231,7 @@ async fn upvote_note(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteUpvoteResponse>> {
-
-
-    let mut value :  i32 = 0;
+    let mut value: i32 = 0;
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
@@ -252,7 +256,10 @@ async fn upvote_note(
     }
 
     // Return updated note
-    Ok(Json(NoteUpvoteResponse { success: true, is_upvoted : value}))
+    Ok(Json(NoteUpvoteResponse {
+        success: true,
+        is_upvoted: value,
+    }))
 }
 
 /// Downvote note (toggle)
@@ -273,9 +280,7 @@ async fn downvote_note(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteUpvoteResponse>> {
-
-
-    let mut value :  i32 = 0;
+    let mut value: i32 = 0;
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
@@ -300,5 +305,45 @@ async fn downvote_note(
     }
 
     // Return updated note
-    Ok(Json(NoteUpvoteResponse { success: true, is_upvoted : value}))
+    Ok(Json(NoteUpvoteResponse {
+        success: true,
+        is_upvoted: value,
+    }))
+}
+
+#[utoipa::path(
+    method(get),
+    path = "/votes",
+    params(
+        ("id" = i32, Path, description = "Note ID")
+    ),
+    responses(
+        (status = OK, description = "Success", body = NoteVotesResponse),
+        (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
+    ),
+    tag = "Notes"
+)]
+async fn get_note_votes(
+    Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
+    Path(id): Path<i32>,
+) -> AxumResult<Json<NoteVotesResponse>> {
+
+    let note = note::Entity::find_by_id(id)
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
+
+        let votes = upvote::Entity::find()
+        .filter(upvote::Column::NoteId.eq(id))
+        .all(&state.db)
+        .await?
+        .into_iter()
+        .map(|v| if v.is_upvote { 1 } else { -1 })
+        .sum::<i32>();
+
+    Ok(Json(NoteVotesResponse {
+        success: true,
+        votes: votes,
+    }))
 }
