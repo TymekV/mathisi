@@ -25,7 +25,7 @@ export default function RegisterScreen() {
 
     return (
         <KeyboardAvoidingView
-            style={styles.flex}
+            style={[styles.flex, { backgroundColor: theme.colors.background }]}
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
         >
             <ScrollView

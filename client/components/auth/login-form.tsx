@@ -139,7 +139,12 @@ export function LoginForm({ onNavigateToRegister }: Props) {
                 Sign in
             </Button>
 
-            <Button mode="text" onPress={onNavigateToRegister} disabled={loginMutation.isPending}>
+            <Button
+                mode="text"
+                onPress={onNavigateToRegister}
+                disabled={loginMutation.isPending}
+                style={{ marginTop: 6 }}
+            >
                 Create an account
             </Button>
         </Surface>
@@ -151,7 +156,7 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 24,
         padding: 24,
-        gap: 8,
+        gap: 2,
     },
     title: {
         marginBottom: 4,

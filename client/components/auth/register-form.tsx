@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     },
     formSpacing: {
         marginTop: 16,
-        gap: 4,
+        gap: 2,
     },
     submitBtn: {
         marginTop: 16,

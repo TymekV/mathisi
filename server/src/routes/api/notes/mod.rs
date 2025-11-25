@@ -93,7 +93,7 @@ impl ManyNotesResponse {
     ) -> Result<ManyNotesResponse> {
         let mut responses = vec![];
         for note in notes {
-            responses.push(note.to_response(db, user_id, true).await?);
+            responses.push(note.to_response(db, user_id, false).await?);
         }
         Ok(ManyNotesResponse { notes: responses })
     }
