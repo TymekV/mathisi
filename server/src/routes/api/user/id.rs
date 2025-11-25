@@ -1,15 +1,22 @@
+use crate::{
+    entity::{note, user},
+    errors::{AxumError, AxumResult},
+    middlewares::UnauthorizedError,
+    routes::api::notes::{ ManyNotesResponse},
+    state::AppState,
+};
 use axum::{Extension, Json, extract::Path};
-use color_eyre::eyre::eyre;
 use chrono::NaiveDateTime;
+use color_eyre::eyre::eyre;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use crate::{entity::{note, user}, errors::{AxumError, AxumResult}, middlewares::UnauthorizedError, routes::api::notes::{self, NoteResponses}, state::AppState};
 
 pub fn routes() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(get_user))
-    .routes(routes!(get_user_notes))
+    OpenApiRouter::new()
+        .routes(routes!(get_user))
+        .routes(routes!(get_user_notes))
 }
 
 #[derive(Serialize, ToSchema)]
@@ -23,14 +30,14 @@ pub struct PublicUserResponse {
 
 impl From<user::Model> for PublicUserResponse {
     fn from(user: user::Model) -> Self {
-         PublicUserResponse{
+        PublicUserResponse {
             id: user.id,
             username: user.username,
             created_at: user.created_at,
         }
     }
 }
-/// Get user public info 
+/// Get user public info
 #[utoipa::path(
     method(get),
     path = "/",
@@ -56,7 +63,7 @@ async fn get_user(
     Ok(Json(user.into()))
 }
 
-/// Get user public info 
+/// Get user public info
 #[utoipa::path(
     method(get),
     path = "/notes",
@@ -64,7 +71,7 @@ async fn get_user(
         ("id" = i32, Path, description = "User ID")
     ),
     responses(
-        (status = OK, description = "Success", body = NoteResponses),
+        (status = OK, description = "Success", body = ManyNotesResponse),
         (status = UNAUTHORIZED, description = "Unauthorized", body = UnauthorizedError)
     ),
     tag = "Notes"
@@ -72,12 +79,11 @@ async fn get_user(
 async fn get_user_notes(
     Extension(state): Extension<AppState>,
     Path(id): Path<i32>,
-) -> AxumResult<Json<NoteResponses>>{
-
+) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find()
-    .filter(note::Column::UserId.eq(id))
-    .all(&state.db)
-    .await?;
+        .filter(note::Column::UserId.eq(id))
+        .all(&state.db)
+        .await?;
 
     Ok(Json(notes.into()))
 }

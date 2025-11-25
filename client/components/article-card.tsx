@@ -4,7 +4,8 @@ import {
     IconArrowBigDownLinesFilled,
     IconArrowBigUpLineFilled,
     IconBookmark,
-    IconBookmarkFilled
+    IconBookmarkFilled,
+    IconCards
 } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import React, { memo, useMemo, useState } from 'react';
@@ -26,6 +27,12 @@ function ArticleCardComponent({ article }: Props) {
     const handleNavigate = () => {
         router.push({
             pathname: '/(tabs)/(home)/article/[id]',
+            params: { id: String(article.id) },
+        });
+    };
+    const handleQuizNavigate = () => {
+        router.push({
+            pathname: '/(tabs)/(home)/quiz/[id]',
             params: { id: String(article.id) },
         });
     };
@@ -82,6 +89,15 @@ function ArticleCardComponent({ article }: Props) {
                         />
                     )}
                     onPress={() => setVote((current) => (current === -1 ? 0 : -1))}
+                />
+                <IconButton
+                    icon={({ color, size }) => (
+                        <IconCards
+                            color={ color}
+                            size={size}
+                        />
+                    )}
+                    onPress={() => handleQuizNavigate()}
                 />
                 <IconButton
                     icon={({ color, size }) => (

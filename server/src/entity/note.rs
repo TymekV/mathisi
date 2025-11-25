@@ -19,6 +19,8 @@ pub struct Model {
 
     pub content: String,
 
+    pub public: bool,
+
     #[sea_orm(has_many, via = "note_tags")]
     pub tags: HasMany<super::tag::Entity>,
 

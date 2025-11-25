@@ -2,6 +2,7 @@ export interface article {
     id: number,
     title: string,
     content: string,
+    user_id: number
     ///
     /// PIERWSZE DWA-TRZY ZDANIA NOTATKI, PROSZE NIE ZAPOMNI SPARSOWAC DO KROPEK
     ///
