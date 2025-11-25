@@ -91,6 +91,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notes/ai": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create note with images using AI
+         * @description Returns generated note content
+         */
+        post: operations["create_ai_note"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notes/bookmark": {
         parameters: {
             query?: never;
@@ -260,6 +280,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/user/{id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["get_user_profile_picture"];
+        put: operations["set_user_profile_picture"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user/{id}/notes": {
         parameters: {
             query?: never;
@@ -281,6 +317,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AiNoteCreateRequest: {
+            files: number[];
+            prompt: string;
+            public?: boolean | null;
+            title: string;
+        };
+        AiNoteCreateResponse: {
+            content: string;
+            /** Format: int32 */
+            id: number;
+        };
         EditFile: {
             filename?: string | null;
             ocr?: string | null;
@@ -343,6 +390,7 @@ export interface components {
         PublicUserResponse: {
             /** Format: date-time */
             created_at: string;
+            has_profile_picture: boolean;
             /** Format: int32 */
             id: number;
             username: string;
@@ -587,6 +635,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NoteCreateResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    create_ai_note: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiNoteCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiNoteCreateResponse"];
                 };
             };
             /** @description Unauthorized */
@@ -971,6 +1052,87 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
                 };
+            };
+        };
+    };
+    get_user_profile_picture: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Profile picture */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description User or picture not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    set_user_profile_picture: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID */
+                id: number;
+            };
+            cookie?: never;
+        };
+        /** @description Raw image bytes */
+        requestBody?: {
+            content: {
+                "image/png": unknown;
+            };
+        };
+        responses: {
+            /** @description Profile picture updated */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
