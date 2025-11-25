@@ -59,9 +59,9 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
                 <Animated.View style={[styles.cardWrapper, frontStyle]}>
                     <Card style={styles.card}>
                         <Card.Content style={styles.cardContent}>
-                            <Text>Question</Text>
+                            <Text style={styles.hint}>Tap to flip</Text>
+                            <Text style={styles.label}>Answer</Text>
                             <Text>{label_frontsize}</Text>
-                            <Text>Tap to flip</Text>
                         </Card.Content>
                     </Card>
                 </Animated.View>
@@ -69,9 +69,9 @@ export default function FlashCard({ label_frontsize, label_backside }: Props) {
                 <Animated.View style={[styles.cardWrapper, backStyle]}>
                     <Card style={[styles.card]}>
                         <Card.Content style={styles.cardContent}>
-                            <Text>Answer</Text>
+                            <Text style={styles.hint}>Tap to flip</Text>
+                            <Text style={styles.label}>Answer</Text>
                             <Text>{label_backside}</Text>
-                            <Text >Tap to flip</Text>
                         </Card.Content>
                     </Card>
                 </Animated.View>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         height: "100%",
     },
     card: {
-
+        height: "100%"
     },
     cardBack: {
 
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     label: {
-        fontSize: 12,
+        fontSize: 18,
+        padding:10,
         fontWeight: "600",
         color: "rgba(255,255,255,0.7)",
         textTransform: "uppercase",
@@ -119,8 +120,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     hint: {
-        position: "absolute",
-        bottom: 16,
+        opacity: 0.5,
         fontSize: 12,
         color: "rgba(255,255,255,0.5)",
     },

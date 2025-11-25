@@ -5,7 +5,7 @@ import {
     IconArrowBigUpLineFilled,
     IconBookmark,
     IconBookmarkFilled,
-    IconCards
+    IconCardsFilled
 } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import React, { memo, useMemo, useState } from 'react';
@@ -92,7 +92,7 @@ function ArticleCardComponent({ article }: Props) {
                 />
                 <IconButton
                     icon={({ color, size }) => (
-                        <IconCards
+                        <IconCardsFilled
                             color={ color}
                             size={size}
                         />
