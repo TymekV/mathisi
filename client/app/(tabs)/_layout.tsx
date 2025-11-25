@@ -4,6 +4,7 @@ import {
     IconBookmark,
     IconCamera,
     IconHome,
+    IconPlus,
     IconUser,
     IconWorld,
 } from '@tabler/icons-react-native';
@@ -28,17 +29,7 @@ export default function Layout() {
     }
 
     return (
-
         <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
-            <Tabs.Screen
-                name="(feed)"
-                options={{
-                    title: 'Feed',
-                    tabBarIcon: ({ color, focused }) => (
-                        <IconWorld color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
-                    ),
-                }}
-            />
             <Tabs.Screen
                 name="(home)"
                 options={{
@@ -49,11 +40,20 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
+                name="(feed)"
+                options={{
+                    title: 'Feed',
+                    tabBarIcon: ({ color, focused }) => (
+                        <IconWorld color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="new"
                 options={{
                     title: 'New',
                     tabBarIcon: ({ color, focused }) => (
-                        <IconCamera color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
+                        <IconPlus color={color} size={24} strokeWidth={focused ? 2.2 : 1.6} />
                     ),
                 }}
             />
