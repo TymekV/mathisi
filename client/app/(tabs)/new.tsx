@@ -5,13 +5,14 @@ import { IconFileDescription, IconPhoto } from '@tabler/icons-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FAB } from 'react-native-paper';
+import { FAB, useTheme } from 'react-native-paper';
 
 export default function AddNewScreen() {
     const [isWriting, setIsWriting] = useState<boolean>(false);
     const [writing, setWriting] = useState<string>('');
     const uploadFilesMutation = apiClient.useMutation('post', '/api/files');
     const updateFileMutation = apiClient.useMutation('patch', '/api/files/{id}');
+    const theme = useTheme();
 
     const startScratch = () => {
         setWriting('');
@@ -84,7 +85,7 @@ export default function AddNewScreen() {
     };
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             {isWriting ? (
                 <NoteComposer
                     initialContent={writing}

@@ -3,10 +3,11 @@ import { useAuth } from '@/lib/providers/auth';
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { Button } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 
 export default function ProfileScreen() {
     const { signOut } = useAuth();
+    const theme = useTheme();
 
     async function handleLogout() {
         await signOut();
@@ -14,7 +15,10 @@ export default function ProfileScreen() {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            style={{ flex: 1, backgroundColor: theme.colors.background }}
+        >
             <UserProfile />
             <Button mode="outlined" onPress={handleLogout} style={{ marginTop: 20 }}>
                 Log Out

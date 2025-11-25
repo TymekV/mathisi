@@ -18,7 +18,7 @@ export function SimpleInput({ side = 'top', containerStyle, style, ...props }: S
                     borderBottomLeftRadius: side === 'top' ? 6 : 16,
                     borderBottomRightRadius: side === 'top' ? 6 : 16,
                     paddingVertical: 0,
-                    justifyContent: 'center',
+                    justifyContent: props.multiline ? undefined : 'center',
                 },
                 containerStyle,
             ]}
@@ -33,7 +33,8 @@ export function SimpleInput({ side = 'top', containerStyle, style, ...props }: S
                 style={[
                     {
                         color: theme.colors.onBackground,
-                        paddingHorizontal: 12,
+                        paddingHorizontal: 14,
+                        flex: props.multiline ? 1 : undefined,
                     },
                     style,
                 ]}

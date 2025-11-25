@@ -73,7 +73,7 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                 backgroundColor: theme.colors.background,
             }}
         >
-            <View className="gap-1">
+            <View className="gap-1 flex-1">
                 <View className="items-center mb-2">
                     <SegmentedButtons
                         value={mode}
@@ -115,14 +115,30 @@ export function NoteComposer({ initialContent, onClose, onContentChange }: Props
                         <SimpleInput
                             value={value}
                             onBlur={onBlur}
-                            placeholder="Name"
+                            placeholder="Content"
                             onChangeText={onChange}
                             side="bottom"
                             multiline
-                            // containerStyle={{ flex: 1 }}
+                            containerStyle={{ flex: 1 }}
                         />
                     )}
                 />
+                <View className="flex-row justify-end items-center gap-2 mt-2">
+                    <Button
+                        mode="elevated"
+                        disabled={createNoteMutation.isPending}
+                        onPress={onClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        mode="contained"
+                        onPress={handleSubmit(onSubmit)}
+                        loading={createNoteMutation.isPending}
+                    >
+                        Publish
+                    </Button>
+                </View>
             </View>
         </KeyboardAvoidingView>
     );
