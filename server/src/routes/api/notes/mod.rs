@@ -1,3 +1,4 @@
+mod ai;
 mod id;
 
 use axum::{Extension, Json};
@@ -24,11 +25,17 @@ pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_note, get_notes))
         .routes(routes!(get_bookmarked_notes))
+        .nest("/ai", ai::routes())
         .nest("/{id}", id::routes())
 }
 
 impl note::Model {
-    pub async fn to_response(&self, db: &DatabaseConnection, user_id: i32) -> Result<NoteResponse> {
+    pub async fn to_response(
+        &self,
+        db: &DatabaseConnection,
+        user_id: i32,
+        short: bool,
+    ) -> Result<NoteResponse> {
         let saves = self.find_related(save::Entity).count(db).await? as i32;
 
         let user_vote = upvote::Entity::find()
@@ -48,25 +55,31 @@ impl note::Model {
             .await?
             .is_some();
 
-            let votes = upvote::Entity::find()
-        .filter(upvote::Column::NoteId.eq(self.id))
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|v| if v.is_upvote { 1 } else { -1 })
-        .sum::<i32>();
+        let votes = upvote::Entity::find()
+            .filter(upvote::Column::NoteId.eq(self.id))
+            .all(db)
+            .await?
+            .into_iter()
+            .map(|v| if v.is_upvote { 1 } else { -1 })
+            .sum::<i32>();
+
+        let content: String = if short {
+            self.content.clone().chars().take(200).collect()
+        } else {
+            self.content.clone()
+        };
 
         Ok(NoteResponse {
             id: self.id,
             user_id: self.user_id,
             created_at: self.created_at,
             title: self.title.clone(),
-            content: self.content.clone(),
+            content,
             public: self.public,
             saves,
             user_vote,
             user_bookmark: is_bookmarked,
-            votes: votes
+            votes: votes,
         })
     }
 }
@@ -79,7 +92,7 @@ impl ManyNotesResponse {
     ) -> Result<ManyNotesResponse> {
         let mut responses = vec![];
         for note in notes {
-            responses.push(note.to_response(db, user_id).await?);
+            responses.push(note.to_response(db, user_id, true).await?);
         }
         Ok(ManyNotesResponse { notes: responses })
     }

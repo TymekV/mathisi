@@ -50,7 +50,7 @@ async fn get_note(
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
 
-    Ok(Json(note.to_response(&state.db, user.id).await?))
+    Ok(Json(note.to_response(&state.db, user.id, true).await?))
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -123,7 +123,7 @@ async fn edit_note(
 
     let note = note.update(&state.db).await?;
 
-    Ok(Json(note.to_response(&state.db,user.id).await?))
+    Ok(Json(note.to_response(&state.db, user.id, false).await?))
 }
 
 #[utoipa::path(

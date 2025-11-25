@@ -28,6 +28,7 @@ export default function Layout() {
     }
 
     return (
+
         <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: true }}>
             <Tabs.Screen
                 name="(feed)"
