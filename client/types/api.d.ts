@@ -180,6 +180,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notes/{id}/quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get quiz for note */
+        get: operations["get_quizes"];
+        put?: never;
+        /** Create quiz for note */
+        post: operations["create_quiz"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notes/{id}/upvote": {
         parameters: {
             query?: never;
@@ -347,6 +365,14 @@ export interface components {
         ManyNotesResponse: {
             notes: components["schemas"]["NoteResponse"][];
         };
+        /**
+         * @example {
+         *       "error": "Not found"
+         *     }
+         */
+        NotFoundError: {
+            error: string;
+        };
         NoteBookmarkResponse: {
             marked: boolean;
             success: boolean;
@@ -394,6 +420,17 @@ export interface components {
             /** Format: int32 */
             id: number;
             username: string;
+        };
+        Question: {
+            answers: string[];
+            /** Format: int32 */
+            correct: number;
+            title: string;
+        };
+        QuizResponse: {
+            /** Format: int32 */
+            id: number;
+            questions: components["schemas"]["Question"][];
         };
         RegisterRequest: {
             email: string;
@@ -559,6 +596,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
                 };
             };
         };
@@ -871,6 +917,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    get_quizes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
+                };
+            };
+        };
+    };
+    create_quiz: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
                 };
             };
         };
