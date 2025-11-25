@@ -5,14 +5,14 @@ use crate::{
     routes::api::notes::ManyNotesResponse,
     state::AppState,
 };
+use axum::body::Bytes;
 use axum::{Extension, Json, extract::Path, response::IntoResponse};
 use chrono::NaiveDateTime;
 use color_eyre::eyre::eyre;
 use http::{HeaderMap, StatusCode, header};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::Serialize;
-use axum::body::Bytes;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set};
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
@@ -93,10 +93,9 @@ async fn get_user_notes(
         .await?;
 
     Ok(Json(
-        ManyNotesResponse::response_from_array(notes, &state.db,user.id).await?,
+        ManyNotesResponse::response_from_array(notes, &state.db, user.id).await?,
     ))
 }
-
 
 #[utoipa::path(
     method(get),
@@ -133,7 +132,6 @@ async fn get_user_profile_picture(
     Ok((StatusCode::OK, headers, bytes))
 }
 
-
 #[utoipa::path(
     method(put),
     path = "/avatar",
@@ -156,6 +154,7 @@ async fn set_user_profile_picture(
     Path(id): Path<i32>,
     // authenticated user injected by middleware
     Extension(current_user): Extension<user::Model>,
+    headers: HeaderMap,
     bytes: Bytes,
 ) -> AxumResult<StatusCode> {
     // simple ownership check; adapt to your auth logic
@@ -175,6 +174,15 @@ async fn set_user_profile_picture(
         .one(&state.db)
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("User not found")))?;
+
+    let content_type = headers
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .ok_or_else(|| AxumError::bad_request(eyre!("Missing Content-Type")))?;
+
+    if content_type != "image/png" {
+        return Err(AxumError::bad_request(eyre!("Only image/png is allowed")));
+    }
 
     let mut active: user::ActiveModel = user_model.into();
     active.profile_picture = Set(Some(bytes.to_vec()));
