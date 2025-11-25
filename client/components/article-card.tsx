@@ -6,7 +6,8 @@ import {
     IconBookmark,
     IconBookmarkFilled,
     IconCards,
-    IconShare2
+    IconPencil,
+    IconShare2,
 } from '@tabler/icons-react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
@@ -21,6 +22,7 @@ type Note = components['schemas']['NoteResponse'];
 type Props = {
     article: Note;
     onUpdate?: () => void;
+    canEdit?: boolean;
 };
 
 // Create a single API client instance outside component
@@ -28,7 +30,7 @@ const $api = createClient<paths>({
     baseUrl: apiBaseUrl,
 });
 
-function ArticleCardComponent({ article, onUpdate }: Props) {
+function ArticleCardComponent({ article, onUpdate, canEdit = false }: Props) {
     const queryClient = useQueryClient();
 
     // Use React Query for fetching note data - single source of truth
@@ -58,8 +60,14 @@ function ArticleCardComponent({ article, onUpdate }: Props) {
     const vote = note?.user_vote ?? 0;
     const bookmarked = note?.user_bookmark ?? false;
 
-    const createdLabel = useMemo(() => timeAgo(note?.created_at ?? article.created_at), [note?.created_at, article.created_at]);
-    const excerpt = useMemo(() => (note?.content ?? article.content).slice(0, 180).trim(), [note?.content, article.content]);
+    const createdLabel = useMemo(
+        () => timeAgo(note?.created_at ?? article.created_at),
+        [note?.created_at, article.created_at]
+    );
+    const excerpt = useMemo(
+        () => (note?.content ?? article.content).slice(0, 180).trim(),
+        [note?.content, article.content]
+    );
     const title = note?.title ?? article.title;
 
     // Refetch on screen focus - wrapped in useCallback to prevent infinite loop
@@ -79,6 +87,13 @@ function ArticleCardComponent({ article, onUpdate }: Props) {
     const handleQuizNavigate = useCallback(() => {
         router.push({
             pathname: '/quiz/[id]',
+            params: { id: String(article.id) },
+        });
+    }, [article.id]);
+
+    const handleEditNavigate = useCallback(() => {
+        router.push({
+            pathname: '/article/[id]/edit',
             params: { id: String(article.id) },
         });
     }, [article.id]);
@@ -202,9 +217,7 @@ function ArticleCardComponent({ article, onUpdate }: Props) {
             <Pressable onPress={handleNavigate}>
                 <Card.Content style={styles.header}>
                     <Surface style={styles.avatar} elevation={1}>
-                        <Text variant="titleMedium">
-                            {title[0]?.toUpperCase()}
-                        </Text>
+                        <Text variant="titleMedium">{title[0]?.toUpperCase()}</Text>
                     </Surface>
                     <View style={styles.meta}>
                         <Text variant="titleMedium">{title}</Text>
@@ -245,6 +258,12 @@ function ArticleCardComponent({ article, onUpdate }: Props) {
                     icon={({ color, size }) => <IconCards color={color} size={size} />}
                     onPress={handleQuizNavigate}
                 />
+                {canEdit && (
+                    <IconButton
+                        icon={({ color, size }) => <IconPencil color={color} size={size} />}
+                        onPress={handleEditNavigate}
+                    />
+                )}
                 <IconButton
                     icon={({ color, size }) =>
                         bookmarked ? (

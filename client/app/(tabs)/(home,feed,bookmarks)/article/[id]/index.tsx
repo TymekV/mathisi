@@ -1,15 +1,16 @@
 import { apiClient } from '@/lib/providers/api';
 import type { components } from '@/types/api';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { ActivityIndicator, Surface, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Surface, Text, useTheme } from 'react-native-paper';
 
 type Note = components['schemas']['NoteResponse'];
 
 export default function NoteDetailsScreen() {
     const theme = useTheme();
+    const router = useRouter();
     const params = useLocalSearchParams<{ id?: string | string[] }>();
     const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
     const numericId = rawId ? Number(rawId) : Number.NaN;
@@ -39,6 +40,16 @@ export default function NoteDetailsScreen() {
         () => (note ? formatAbsoluteDate(note.created_at) : ''),
         [note?.created_at]
     );
+
+    const handleEditPress = useCallback(() => {
+        if (!Number.isFinite(numericId)) {
+            return;
+        }
+        router.push({
+            pathname: '/article/[id]/edit',
+            params: { id: String(numericId) },
+        });
+    }, [numericId, router]);
     const metaStats = useMemo(
         () =>
             note
@@ -119,6 +130,11 @@ export default function NoteDetailsScreen() {
                         </Surface>
                     ))}
                 </View>
+                <View style={styles.headerActions}>
+                    <Button mode="outlined" onPress={handleEditPress}>
+                        Edit note
+                    </Button>
+                </View>
             </View>
             <Surface
                 elevation={0}
@@ -167,6 +183,10 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: 12,
     },
+    headerActions: {
+        marginTop: 8,
+        alignItems: 'flex-start',
+    },
     metaPill: {
         borderRadius: 999,
         paddingHorizontal: 14,
@@ -186,7 +206,7 @@ const styles = StyleSheet.create({
     },
 });
 
-function createMarkdownStyles(theme: ReturnType<typeof useTheme>, codeFontFamily: string) {
+function createMarkdownStyles(theme: any, codeFontFamily: string) {
     const codeShell = {
         borderRadius: 14,
         borderWidth: 1,
