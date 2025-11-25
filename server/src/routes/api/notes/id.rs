@@ -42,6 +42,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
 )]
 async fn get_note(
     Extension(state): Extension<AppState>,
+    Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteResponse>> {
     let note = note::Entity::find_by_id(id)
@@ -49,7 +50,7 @@ async fn get_note(
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
 
-    Ok(Json(note.to_response(&state.db).await?))
+    Ok(Json(note.to_response(&state.db, user.id).await?))
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -122,7 +123,7 @@ async fn edit_note(
 
     let note = note.update(&state.db).await?;
 
-    Ok(Json(note.to_response(&state.db).await?))
+    Ok(Json(note.to_response(&state.db,user.id).await?))
 }
 
 #[utoipa::path(
@@ -329,13 +330,12 @@ async fn get_note_votes(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteVotesResponse>> {
-
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
 
-        let votes = upvote::Entity::find()
+    let votes = upvote::Entity::find()
         .filter(upvote::Column::NoteId.eq(id))
         .all(&state.db)
         .await?
@@ -366,13 +366,12 @@ async fn get_note_vote(
     Extension(user): Extension<user::Model>,
     Path(id): Path<i32>,
 ) -> AxumResult<Json<NoteUpvoteResponse>> {
-
     let note = note::Entity::find_by_id(id)
         .one(&state.db)
         .await?
         .ok_or_else(|| AxumError::not_found(eyre!("Note not found")))?;
 
-        let votes = upvote::Entity::find()
+    let votes = upvote::Entity::find()
         .filter(upvote::Column::NoteId.eq(id))
         .filter(upvote::Column::UserId.eq(user.id))
         .one(&state.db)

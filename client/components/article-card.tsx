@@ -5,9 +5,7 @@ import {
     IconBookmark,
     IconBookmarkFilled,
     IconCards,
-    IconCardsFilled,
-    IconShare,
-    IconShare2,
+    IconShare2
 } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import React, { memo, useMemo, useState } from 'react';
@@ -48,6 +46,10 @@ function ArticleCardComponent({ article }: Props) {
             console.error('Share failed', error);
         }
     };
+
+    const bookMark = async () =>{
+
+    }
 
     return (
         <Card mode="elevated" style={styles.card}>

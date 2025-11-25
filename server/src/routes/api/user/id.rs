@@ -76,6 +76,7 @@ async fn get_user(
 async fn get_user_notes(
     Extension(state): Extension<AppState>,
     Path(id): Path<i32>,
+    Extension(user): Extension<user::Model>,
 ) -> AxumResult<Json<ManyNotesResponse>> {
     let notes = note::Entity::find()
         .filter(note::Column::UserId.eq(id))
@@ -85,6 +86,6 @@ async fn get_user_notes(
         .await?;
 
     Ok(Json(
-        ManyNotesResponse::response_from_array(notes, &state.db).await?,
+        ManyNotesResponse::response_from_array(notes, &state.db,user.id).await?,
     ))
 }
