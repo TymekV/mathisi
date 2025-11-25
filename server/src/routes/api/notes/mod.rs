@@ -3,8 +3,10 @@ mod id;
 use axum::{Extension, Json};
 use axum_valid::Valid;
 use chrono::{DateTime, Utc};
+use color_eyre::eyre::Result;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, QueryOrder,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, ModelTrait,
+    PaginatorTrait, QueryFilter, QueryOrder,
 };
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -12,7 +14,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use validator::Validate;
 
 use crate::{
-    entity::{note, user},
+    entity::{note, save, user},
     errors::AxumResult,
     middlewares::UnauthorizedError,
     state::AppState,
@@ -24,25 +26,55 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .nest("/{id}", id::routes())
 }
 
-impl From<note::Model> for NoteResponse {
-    fn from(note: note::Model) -> Self {
-        NoteResponse {
-            id: note.id,
-            user_id: note.user_id,
-            created_at: note.created_at,
-            title: note.title,
-            content: note.content,
-            public: note.public,
-        }
+// impl From<note::Model> for NoteResponse {
+//     fn from(note: note::Model) -> Self {
+//         NoteResponse {
+//             id: note.id,
+//             user_id: note.user_id,
+//             created_at: note.created_at,
+//             title: note.title,
+//             content: note.content,
+//             public: note.public,
+//         }
+//     }
+// }
+
+impl note::Model {
+    pub async fn to_response(&self, db: &DatabaseConnection) -> Result<NoteResponse> {
+        let saves = self.find_related(save::Entity).count(db).await? as i32;
+
+        Ok(NoteResponse {
+            id: self.id,
+            user_id: self.user_id,
+            created_at: self.created_at,
+            title: self.title.clone(),
+            content: self.content.clone(),
+            public: self.public,
+            saves,
+        })
     }
 }
-impl From<Vec<note::Model>> for ManyNotesResponse {
-    fn from(notes: Vec<note::Model>) -> Self {
-        ManyNotesResponse {
-            notes: notes.into_iter().map(NoteResponse::from).collect(),
+
+impl ManyNotesResponse {
+    pub async fn response_from_array(
+        notes: Vec<note::Model>,
+        db: &DatabaseConnection,
+    ) -> Result<ManyNotesResponse> {
+        let mut responses = vec![];
+        for note in notes {
+            responses.push(note.to_response(db).await?);
         }
+        Ok(ManyNotesResponse { notes: responses })
     }
 }
+
+// impl From<Vec<note::Model>> for ManyNotesResponse {
+//     fn from(notes: Vec<note::Model>) -> Self {
+//         ManyNotesResponse {
+//             notes: notes.into_iter().map(|note| NoteResponse::from).collect(),
+//         }
+//     }
+// }
 
 #[derive(Serialize, ToSchema)]
 pub struct NoteCreateResponse {
@@ -93,6 +125,7 @@ pub struct NoteResponse {
     pub title: String,
     pub content: String,
     pub public: bool,
+    pub saves: i32,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -119,5 +152,8 @@ async fn get_notes(
         .order_by_desc(note::Column::CreatedAt)
         .all(&state.db)
         .await?;
-    Ok(Json(notes.into()))
+
+    Ok(Json(
+        ManyNotesResponse::response_from_array(notes, &state.db).await?,
+    ))
 }
