@@ -36,7 +36,9 @@ export default function LoginScreen() {
                     <View style={[styles.iconContainer, { backgroundColor: theme.colors.primary }]}>
                         <IconNotebook size={48} color={theme.colors.onPrimary} strokeWidth={1.4} />
                     </View>
-                    <Text variant="headlineMedium" style={styles.heroTitle}>Mathisi</Text>
+                    <Text variant="headlineMedium" style={styles.heroTitle}>
+                        Mathisi
+                    </Text>
                     <Text variant="bodyLarge" style={styles.heroSubtitle}>
                         Capture, search, and revisit your handwritten knowledge.
                     </Text>

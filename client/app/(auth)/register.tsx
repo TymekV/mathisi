@@ -33,7 +33,9 @@ export default function RegisterScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 <View style={styles.hero}>
-                    <View style={[styles.iconContainer, { backgroundColor: theme.colors.secondary }]}>
+                    <View
+                        style={[styles.iconContainer, { backgroundColor: theme.colors.secondary }]}
+                    >
                         <IconFeather size={48} color={theme.colors.onSecondary} strokeWidth={1.4} />
                     </View>
                     <Text variant="headlineMedium" style={styles.heroTitle}>

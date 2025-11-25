@@ -20,7 +20,7 @@ export default function AddNewScreen() {
 
     const pickImage = async () => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images"],
+            mediaTypes: ['images'],
             quality: 1,
             allowsMultipleSelection: true,
         });
