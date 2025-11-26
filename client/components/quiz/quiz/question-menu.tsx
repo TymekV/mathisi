@@ -1,41 +1,35 @@
+import { apiClient } from "@/lib/providers/api";
 import { IconArrowRight, IconCheck, IconChevronLeft, IconQuestionMark, IconRotateClockwise, IconTrophy, IconX } from "@tabler/icons-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Animated, StyleSheet, View } from "react-native";
 import { FAB, ProgressBar, Surface, Text, useTheme } from "react-native-paper";
 
-const example = [
-    {
-        question: "What is the capital of France?",
-        correct_answer: 1,
-        answers: ["London", "Paris", "Berlin", "Madrid"]
-    },
-    {
-        question: "Which planet is closest to the Sun?",
-        correct_answer: 0,
-        answers: ["Mercury", "Venus", "Earth", "Mars"]
-    },
-    {
-        question: "What is 2 + 2?",
-        correct_answer: 2,
-        answers: ["3", "5", "4", "6"]
-    }
-];
 
 interface Props {
-    onBack: () => void
+    onBack: () => void,
+    id: string 
 }
 
 type AnswerState = 'default' | 'correct' | 'incorrect' | 'revealed';
 
-export default function QuestionMenu({onBack: onBack} : Props) {
+export default function QuestionMenu({ onBack, id }: Props) {
+    const cardsQuery = apiClient.useQuery('get', '/api/notes/{id}/quiz', { params: { path: { id: id } } }, {
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: false,
+    });
+
+    useEffect(() =>{
+        console.log(id)
+        console.log(cardsQuery)
+    })
+
+    const cards = cardsQuery.data?.questions ?? [];
     const theme = useTheme();
 
     const [question, setQuestion] = useState<number>(0);
     const [score, setScore] = useState<number>(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-    const [answerStates, setAnswerStates] = useState<AnswerState[]>(
-        example[0].answers.map(() => 'default')
-    );
+    const [answerStates, setAnswerStates] = useState<AnswerState[]>([]);
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [quizComplete, setQuizComplete] = useState<boolean>(false);
     const [streak, setStreak] = useState<number>(0);
@@ -46,19 +40,41 @@ export default function QuestionMenu({onBack: onBack} : Props) {
     const shakeAnim = useRef(new Animated.Value(0)).current;
     const bounceAnim = useRef(new Animated.Value(1)).current;
     const progressAnim = useRef(new Animated.Value(0)).current;
-    const buttonAnims = useRef(example[0].answers.map(() => new Animated.Value(0))).current;
     const scoreAnim = useRef(new Animated.Value(1)).current;
 
+    // Initialize buttonAnims based on current question's answers count
+    const currentAnswerCount = cards[question]?.answers?.length ?? 0;
+    const buttonAnims = useRef<Animated.Value[]>([]).current;
+
+    // Ensure we have enough animation values for current answers
     useEffect(() => {
-        // Animate buttons appearing
-        animateButtonsIn();
+        if (currentAnswerCount > 0) {
+            // Reset and recreate animation values when answer count changes
+            buttonAnims.length = 0;
+            for (let i = 0; i < currentAnswerCount; i++) {
+                buttonAnims.push(new Animated.Value(0));
+            }
+            animateButtonsIn();
+        }
+    }, [currentAnswerCount, question]);
+
+    // Initialize answer states when cards load or question changes
+    useEffect(() => {
+        if (cards.length > 0 && cards[question]?.answers) {
+            setAnswerStates(cards[question].answers.map(() => 'default'));
+        }
+    }, [cards.length, question]);
+
+    useEffect(() => {
+        if (cards.length === 0) return;
+        
         // Animate progress bar
         Animated.timing(progressAnim, {
-            toValue: question / example.length,
+            toValue: question / cards.length,
             duration: 500,
             useNativeDriver: false,
         }).start();
-    }, [question]);
+    }, [question, cards.length]);
 
     const animateButtonsIn = () => {
         buttonAnims.forEach((anim, index) => {
@@ -103,11 +119,10 @@ export default function QuestionMenu({onBack: onBack} : Props) {
         setSelectedAnswer(index);
         setIsAnswered(true);
 
-        const isCorrect = index === example[question].correct_answer;
+        const isCorrect = index === cards[question].correct;
 
-        // Update answer states
-        const newStates: AnswerState[] = example[question].answers.map((_, i) => {
-            if (i === example[question].correct_answer) return 'correct';
+        const newStates: AnswerState[] = cards[question].answers.map((_, i) => {
+            if (i === cards[question].correct) return 'correct';
             if (i === index && !isCorrect) return 'incorrect';
             return 'revealed';
         });
@@ -125,12 +140,11 @@ export default function QuestionMenu({onBack: onBack} : Props) {
     };
 
     const nextQuestion = () => {
-        if (question + 1 >= example.length) {
+        if (question + 1 >= cards.length) {
             setQuizComplete(true);
             return;
         }
 
-        // Fade out animation
         Animated.timing(fadeAnim, {
             toValue: 0,
             duration: 200,
@@ -138,10 +152,9 @@ export default function QuestionMenu({onBack: onBack} : Props) {
         }).start(() => {
             setQuestion(question + 1);
             setSelectedAnswer(null);
-            setAnswerStates(example[question + 1].answers.map(() => 'default'));
+            setAnswerStates(cards[question + 1].answers.map(() => 'default'));
             setIsAnswered(false);
 
-            // Fade in animation
             Animated.timing(fadeAnim, {
                 toValue: 1,
                 duration: 200,
@@ -155,7 +168,7 @@ export default function QuestionMenu({onBack: onBack} : Props) {
         setScore(0);
         setStreak(0);
         setSelectedAnswer(null);
-        setAnswerStates(example[0].answers.map(() => 'default'));
+        setAnswerStates(cards[0]?.answers?.map(() => 'default') ?? []);
         setIsAnswered(false);
         setQuizComplete(false);
         progressAnim.setValue(0);
@@ -169,42 +182,67 @@ export default function QuestionMenu({onBack: onBack} : Props) {
 
         switch (state) {
             case 'correct':
-                return {
-                    ...baseStyle,
-                    backgroundColor: '#4CAF50',
-                };
+                return { ...baseStyle, backgroundColor: '#4CAF50' };
             case 'incorrect':
-                return {
-                    ...baseStyle,
-                    backgroundColor: '#F44336',
-                };
+                return { ...baseStyle, backgroundColor: '#F44336' };
             case 'revealed':
-                return {
-                    ...baseStyle,
-                    backgroundColor: '#9E9E9E',
-                    opacity: 0.6,
-                };
+                return { ...baseStyle, backgroundColor: '#9E9E9E', opacity: 0.6 };
             default:
-                return {
-                    ...baseStyle,
-                    backgroundColor: theme.colors.primaryContainer,
-                };
+                return { ...baseStyle, backgroundColor: theme.colors.primaryContainer };
         }
     };
 
     const getButtonIcon = (state: AnswerState) => {
         switch (state) {
             case 'correct':
-                return ({ size, color }: { size: number; color: string }) =>
+                return ({ size }: { size: number; color: string }) =>
                     <IconCheck size={size} color="#fff" />;
             case 'incorrect':
-                return ({ size, color }: { size: number; color: string }) =>
+                return ({ size }: { size: number; color: string }) =>
                     <IconX size={size} color="#fff" />;
             default:
                 return ({ size, color }: { size: number; color: string }) =>
                     <IconQuestionMark size={size} color={color} />;
         }
     };
+
+    // Loading state
+    if (cardsQuery.isLoading) {
+        return (
+            <View style={[styles.container, styles.centerContent]}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text variant="bodyLarge" style={{ marginTop: 16 }}>Loading quiz...</Text>
+            </View>
+        );
+    }
+
+    // Error state
+    if (cardsQuery.isError) {
+        return (
+            <View style={[styles.container, styles.centerContent]}>
+                <Text variant="bodyLarge">Failed to load quiz</Text>
+                <FAB
+                    icon={({ size, color }) => <IconChevronLeft size={size} color={color} />}
+                    label="Go Back"
+                    onPress={onBack}
+                />
+            </View>
+        );
+    }
+
+    // Empty state
+    if (cards.length === 0) {
+        return (
+            <View style={[styles.container, styles.centerContent]}>
+                <Text variant="bodyLarge">No questions available</Text>
+                <FAB
+                    icon={({ size, color }) => <IconChevronLeft size={size} color={color} />}
+                    label="Go Back"
+                    onPress={onBack}
+                />
+            </View>
+        );
+    }
 
     if (quizComplete) {
         return (
@@ -215,10 +253,10 @@ export default function QuestionMenu({onBack: onBack} : Props) {
                         Quiz Complete!
                     </Text>
                     <Text variant="headlineMedium" style={styles.scoreText}>
-                        {score} / {example.length}
+                        {score} / {cards.length}
                     </Text>
                     <Text variant="bodyLarge" style={styles.percentageText}>
-                        {Math.round((score / example.length) * 100)}% Correct
+                        {Math.round((score / cards.length) * 100)}% Correct
                     </Text>
                     <FAB
                         style={styles.restartButton}
@@ -229,12 +267,14 @@ export default function QuestionMenu({onBack: onBack} : Props) {
                     <FAB
                         icon={({ size, color }) => <IconChevronLeft size={size} color={color} />}
                         label="Go Back"
-                        onPress={() => onBack()}
+                        onPress={onBack}
                     />
                 </Surface>
             </View>
         );
     }
+
+    const currentCard = cards[question];
 
     return (
         <View style={styles.container}>
@@ -256,10 +296,10 @@ export default function QuestionMenu({onBack: onBack} : Props) {
             {/* Progress Bar */}
             <View style={styles.progressContainer}>
                 <Text variant="bodySmall" style={styles.progressText}>
-                    Question {question + 1} of {example.length}
+                    Question {question + 1} of {cards.length}
                 </Text>
                 <ProgressBar
-                    progress={(question + (isAnswered ? 1 : 0)) / example.length}
+                    progress={(question + (isAnswered ? 1 : 0)) / cards.length}
                     style={styles.progressBar}
                     color={theme.colors.primary}
                 />
@@ -281,7 +321,7 @@ export default function QuestionMenu({onBack: onBack} : Props) {
                 <Surface style={styles.questionCard} elevation={3}>
                     <IconQuestionMark size={32} color={theme.colors.primary} />
                     <Text variant="headlineSmall" style={styles.questionText}>
-                        {example[question].question}
+                        {currentCard.title}
                     </Text>
                 </Surface>
             </Animated.View>
@@ -296,12 +336,12 @@ export default function QuestionMenu({onBack: onBack} : Props) {
                     }
                 ]}
             >
-                {example[question].answers.map((item, index) => (
+                {currentCard.answers.map((item, index) => (
                     <Animated.View
-                        key={index}
+                        key={`${question}-${index}`}
                         style={[
                             styles.answerWrapper,
-                            {
+                            buttonAnims[index] && {
                                 opacity: buttonAnims[index],
                                 transform: [
                                     {
@@ -320,12 +360,12 @@ export default function QuestionMenu({onBack: onBack} : Props) {
                         ]}
                     >
                         <FAB
-                            style={getButtonStyle(answerStates[index], index)}
-                            icon={getButtonIcon(answerStates[index])}
+                            style={getButtonStyle(answerStates[index] ?? 'default', index)}
+                            icon={getButtonIcon(answerStates[index] ?? 'default')}
                             label={item}
                             onPress={() => handleAnswer(index)}
                             disabled={isAnswered}
-                            color={answerStates[index] !== 'default' ? '#fff' : undefined}
+                            color={answerStates[index] && answerStates[index] !== 'default' ? '#fff' : undefined}
                         />
                     </Animated.View>
                 ))}
@@ -333,113 +373,39 @@ export default function QuestionMenu({onBack: onBack} : Props) {
 
             {/* Next Button */}
             {isAnswered && (
-                <Animated.View
-                    style={[
-                        styles.nextButtonContainer,
-                        {
-                            opacity: fadeAnim,
-                        },
-                    ]}
-                >
+                <Animated.View style={[styles.nextButtonContainer, { opacity: fadeAnim }]}>
                     <FAB
                         style={styles.nextButton}
                         icon={({ size, color }) => <IconArrowRight size={size} color={color} />}
-                        label={question + 1 >= example.length ? "See Results" : "Next Question"}
+                        label={question + 1 >= cards.length ? "See Results" : "Next Question"}
                         onPress={nextQuestion}
                     />
                 </Animated.View>
             )}
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        width: '100%',
-        padding: 16,
-        gap: 16,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        paddingHorizontal: 8,
-    },
-    scoreBadge: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-    },
-    streakBadge: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-    },
-    progressContainer: {
-        width: '100%',
-        paddingHorizontal: 8,
-    },
-    progressText: {
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    progressBar: {
-        height: 8,
-        borderRadius: 4,
-    },
-    questionContainer: {
-        width: '100%',
-        alignItems: 'center',
-    },
-    questionCard: {
-        width: '90%',
-        padding: 24,
-        borderRadius: 20,
-        alignItems: 'center',
-        gap: 12,
-    },
-    questionText: {
-        textAlign: 'center',
-    },
-    answersContainer: {
-        width: '100%',
-        alignItems: 'center',
-        gap: 12,
-    },
-    answerWrapper: {
-        width: '100%',
-        alignItems: 'center',
-    },
-    nextButtonContainer: {
-        marginTop: 16,
-    },
-    nextButton: {
-        borderRadius: 28,
-    },
-    feedbackCard: {
-        padding: 16,
-        borderRadius: 12,
-        marginTop: 8,
-    },
-    completionCard: {
-        padding: 32,
-        borderRadius: 24,
-        alignItems: 'center',
-        gap: 16,
-    },
-    completionTitle: {
-        marginTop: 16,
-    },
-    scoreText: {
-        fontWeight: 'bold',
-    },
-    percentageText: {
-        opacity: 0.7,
-    },
-    restartButton: {
-        marginTop: 16,
-    },
+    // ... keep your existing styles
+    container: { flex: 1, alignItems: 'center', width: '100%', padding: 16, gap: 16 },
+    centerContent: { justifyContent: 'center' },
+    header: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 8 },
+    scoreBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+    streakBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+    progressContainer: { width: '100%', paddingHorizontal: 8 },
+    progressText: { marginBottom: 4, textAlign: 'center' },
+    progressBar: { height: 8, borderRadius: 4 },
+    questionContainer: { width: '100%', alignItems: 'center' },
+    questionCard: { width: '90%', padding: 24, borderRadius: 20, alignItems: 'center', gap: 12 },
+    questionText: { textAlign: 'center' },
+    answersContainer: { width: '100%', alignItems: 'center', gap: 12 },
+    answerWrapper: { width: '100%', alignItems: 'center' },
+    nextButtonContainer: { marginTop: 16 },
+    nextButton: { borderRadius: 28 },
+    completionCard: { padding: 32, borderRadius: 24, alignItems: 'center', gap: 16 },
+    completionTitle: { marginTop: 16 },
+    scoreText: { fontWeight: 'bold' },
+    percentageText: { opacity: 0.7 },
+    restartButton: { marginTop: 16 },
 });

@@ -17,10 +17,13 @@ interface Props {
 }
 
 export default function FlashCard({ label_frontsize, label_backside }: Props) {
+
+    
+
     const rotation = useSharedValue(0);
 
     useFocusEffect(() => {
-        rotation.value = 0;
+        rotation.value = 0
     });
 
     const flip = () => {

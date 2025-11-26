@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/constants/apiBaseUrl';
+import { getAuthToken } from '@/lib/auth/token';
 import type { components, paths } from '@/types/api';
 import {
     IconArrowBigDownLinesFilled,
@@ -84,7 +85,35 @@ function ArticleCardComponent({ article, onUpdate, canEdit = false }: Props) {
         });
     }, [article.id]);
 
-    const handleQuizNavigate = useCallback(() => {
+    async function Quiz() {
+
+        const token = await getAuthToken()
+        const { data, error } = await $api.POST('/api/notes/{id}/quiz', {
+            params: {
+                path: { id: article.id },
+            },
+            headers: {
+                Authorization: token ?? '',
+            },
+        });
+    }
+
+    async function Cards() {
+        const token = await getAuthToken()
+        const { data, error } = await $api.POST('/api/notes/{id}/cards', {
+            params: {
+                path: { id: article.id },
+            },
+            headers: {
+                Authorization: token ?? '',
+            },
+        });
+    }
+
+    const handleQuizNavigate = useCallback(async () => {
+        Quiz()
+        Cards()
+
         router.push({
             pathname: '/quiz/[id]',
             params: { id: String(article.id) },

@@ -163,6 +163,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notes/{id}/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get cards for note */
+        get: operations["get_cards"];
+        put?: never;
+        /** Create quiz for note */
+        post: operations["create_cards"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notes/{id}/downvote": {
         parameters: {
             query?: never;
@@ -346,6 +364,11 @@ export interface components {
             /** Format: int32 */
             id: number;
         };
+        CardResponse: {
+            /** Format: int32 */
+            id: number;
+            questions: components["schemas"]["QuestionAnswer"][];
+        };
         EditFile: {
             filename?: string | null;
             ocr?: string | null;
@@ -426,6 +449,10 @@ export interface components {
             /** Format: int32 */
             correct: number;
             title: string;
+        };
+        QuestionAnswer: {
+            answer: string;
+            question: string;
         };
         QuizResponse: {
             /** Format: int32 */
@@ -885,6 +912,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    get_cards: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
+                };
+            };
+        };
+    };
+    create_cards: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Note id */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotFoundError"];
                 };
             };
         };
