@@ -11,7 +11,7 @@
 
 ## Aplikacja Mathisi:
 
-[Strona internetowa projektu](https://mathisi.agin.rocks/)
+[Strona internetowa projektu](https://mathisi.piernik.rocks/)
 
 ## Opis:
 
